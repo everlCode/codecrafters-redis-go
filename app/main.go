@@ -22,15 +22,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	bytes := make([]byte, 1000)
+	//bytes := make([]byte, 1000)
 	for {
 		conn, err := l.Accept()
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
 			return
 		}
-		
-		conn.Read(bytes)
-		conn.Write(bytes)
+
+		//conn.Read(bytes)
+		conn.Write([]byte("+PONG\r\n"))
 	}
 }
