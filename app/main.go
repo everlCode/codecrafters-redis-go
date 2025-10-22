@@ -24,13 +24,24 @@ func main() {
 
 	//bytes := make([]byte, 1000)
 	for {
+		fmt.Println("TTT")
 		conn, err := l.Accept()
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
+			continue
+		}
+		go handle(conn)
+	}
+}
+
+func handle(conn net.Conn) {
+	for {
+		msg := make([]byte, 128)
+		_, err := conn.Read(msg)
+		if err != nil {
 			return
 		}
 
-		///conn.Read(bytes)
 		conn.Write([]byte("+PONG\r\n"))
 	}
 }
