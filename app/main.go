@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+
+	"github.com/codecrafters-io/redis-starter-go/app/tools"
 )
 
 // Ensures gofmt doesn't remove the "net" and "os" imports in stage 1 (feel free to remove this!)
@@ -24,7 +26,6 @@ func main() {
 
 	//bytes := make([]byte, 1000)
 	for {
-		fmt.Println("TTT")
 		conn, err := l.Accept()
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
@@ -35,13 +36,22 @@ func main() {
 }
 
 func handle(conn net.Conn) {
+	defer conn.Close()
+
+	parser := tools.New(conn)
 	for {
-		msg := make([]byte, 128)
-		_, err := conn.Read(msg)
+		command, err := parser.Parse()
 		if err != nil {
+			fmt.Println("ERROR", err)
 			return
 		}
-
-		conn.Write([]byte("+PONG\r\n"))
+		msg := ""
+		if command[0] == "ECHO" {
+			resp := fmt.Sprintf("$%d\r\n%s\r\n", len(command[1]), command[1])
+			conn.Write([]byte(resp))
+		} else {
+			msg = "+PONG\r\n"
+			conn.Write([]byte(msg))
+		}
 	}
 }
