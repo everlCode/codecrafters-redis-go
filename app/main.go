@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
-
-	"github.com/codecrafters-io/redis-starter-go/app/tools"
+	"strings"
 )
 
 // Ensures gofmt doesn't remove the "net" and "os" imports in stage 1 (feel free to remove this!)
@@ -24,34 +23,47 @@ func main() {
 		os.Exit(1)
 	}
 
-	//bytes := make([]byte, 1000)
+	db := NewDB()
+
 	for {
 		conn, err := l.Accept()
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
 			continue
 		}
-		go handle(conn)
+		go handle(conn, db)
 	}
 }
 
-func handle(conn net.Conn) {
+func handle(conn net.Conn, db *DB) {
 	defer conn.Close()
 
-	parser := tools.New(conn)
 	for {
-		command, err := parser.Parse()
+		parser := NewResp(conn)
+		command, err := parser.Read()
 		if err != nil {
-			fmt.Println("ERROR", err)
-			return
+			fmt.Errorf("ERR: %s", err.Error())
+			continue
 		}
-		msg := ""
-		if command[0] == "ECHO" {
-			resp := fmt.Sprintf("$%d\r\n%s\r\n", len(command[1]), command[1])
-			conn.Write([]byte(resp))
-		} else {
-			msg = "+PONG\r\n"
-			conn.Write([]byte(msg))
+		if command.Type != ARRAY {
+			fmt.Errorf("ERR: %s", "Неверный запрос! Ожидался массив!")
+			continue
 		}
+		if len(command.Array) == 0 {
+			fmt.Errorf("ERR: %s", "Неверный запрос! Не переданы необходимые аргументы")
+			continue
+		}
+
+		handlerName := command.Array[0].Bulk
+		handler, ok := handlers[strings.ToLower(handlerName)]
+		if !ok {
+			fmt.Errorf("ERR: %s", "Неверный запрос! Команды %s не существует!", handlerName)
+			continue
+		}
+		r := command.Array[1:]
+		result := handler(r, db)
+
+		writer := NewWriter(conn)
+		writer.Write(result)
 	}
 }
