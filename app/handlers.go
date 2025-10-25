@@ -63,7 +63,7 @@ func get(args []Value, db *DB) Value {
 	value, ok := db.sets[key.Bulk]
 	fmt.Println("NOW ", time.Now().UnixMilli())
 	fmt.Println("VALUE ", value.Expires)
-	if !ok || value.Expires < time.Now().UnixMilli() {
+	if !ok || (value.Expires != 0 && value.Expires < time.Now().UnixMilli()) {
 		return Value{Type: BULK, Bulk: ""}
 	}
 
