@@ -3,10 +3,16 @@ package main
 import "fmt"
 
 var handlers = map[string]func([]Value, *DB) Value{
+	"ping": ping,
 	"echo": echo,
 	"set": set,
 	"get": get,
 }
+
+func ping(args []Value, db *DB) Value {
+	return Value{Type: STRING, String: "PONG"}
+}
+
 
 func echo(args []Value, db *DB) Value {
 	fmt.Println("ECHO")
