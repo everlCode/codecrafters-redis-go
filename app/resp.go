@@ -21,6 +21,7 @@ type Value struct {
 	Array  []Value
 	String string
 	Bulk   string
+	Expires int64
 }
 
 type Parser struct {

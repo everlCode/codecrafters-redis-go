@@ -1,21 +1,24 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
+)
 
 var handlers = map[string]func([]Value, *DB) Value{
 	"ping": ping,
 	"echo": echo,
-	"set": set,
-	"get": get,
+	"set":  set,
+	"get":  get,
 }
 
 func ping(args []Value, db *DB) Value {
 	return Value{Type: STRING, String: "PONG"}
 }
 
-
 func echo(args []Value, db *DB) Value {
-	fmt.Println("ECHO")
 	if len(args) == 0 {
 		return Value{Type: BULK, Bulk: "PONG"}
 	}
@@ -28,9 +31,21 @@ func set(args []Value, db *DB) Value {
 	if len(args) < 2 {
 		return Value{Type: ERROR, String: "ERR to few args"}
 	}
+	fmt.Println(args)
 
 	key := args[0]
 	value := args[1]
+
+	if len(args) > 3 {
+		commnadOption := args[2]
+		if strings.ToLower(commnadOption.Bulk) == "px" {
+			px, err := strconv.ParseInt(args[3].Bulk, 10, 64)
+			if err != nil {
+				return Value{Type: ERROR, String: "Invalid argument"}
+			}
+			value.Expires = time.Now().UnixMilli() + px
+		}
+	}
 
 	db.sets[key.Bulk] = value
 
@@ -46,10 +61,10 @@ func get(args []Value, db *DB) Value {
 	key := args[0]
 
 	value, ok := db.sets[key.Bulk]
-	fmt.Println(db.sets)
-	
-	if !ok {
-		return Value{Type: ERROR, String: ""}
+	fmt.Println("NOW ", time.Now().UnixMilli())
+	fmt.Println("VALUE ", value.Expires)
+	if !ok || value.Expires < time.Now().UnixMilli() {
+		return Value{Type: BULK, Bulk: ""}
 	}
 
 	return value
