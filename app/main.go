@@ -5,6 +5,10 @@ import (
 	"net"
 	"os"
 	"strings"
+
+	"github.com/codecrafters-io/redis-starter-go/app/db"
+	"github.com/codecrafters-io/redis-starter-go/app/handlers"
+	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
 // Ensures gofmt doesn't remove the "net" and "os" imports in stage 1 (feel free to remove this!)
@@ -20,10 +24,11 @@ func main() {
 	l, err := net.Listen("tcp", "0.0.0.0:6379")
 	if err != nil {
 		fmt.Println("Failed to bind to port 6379")
+		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	db := NewDB()
+	db := db.New()
 
 	for {
 		conn, err := l.Accept()
@@ -35,33 +40,37 @@ func main() {
 	}
 }
 
-func handle(conn net.Conn, db *DB) {
+func handle(conn net.Conn, db *db.DB) {
 	defer conn.Close()
 
 	for {
-		parser := NewResp(conn)
-		command, err := parser.Read()
+		parser := resp.New(conn)
+		request, err := parser.Read()
 		if err != nil {
 			fmt.Errorf("ERR: %s", err.Error())
 			continue
 		}
-		if command.Type != ARRAY {
+		if request.Type != resp.ARRAY {
 			fmt.Errorf("ERR: %s", "Неверный запрос! Ожидался массив!")
 			continue
 		}
-		if len(command.Array) == 0 {
+		if len(request.Array) == 0 {
 			fmt.Errorf("ERR: %s", "Неверный запрос! Не переданы необходимые аргументы")
 			continue
 		}
 
-		handlerName := command.Array[0].Bulk
-		handler, ok := handlers[strings.ToLower(handlerName)]
-		if !ok {
+		register := handlers.NewRegister()
+		handlerName := strings.ToUpper(request.Array[0].Bulk)
+
+		handler, err := register.Get(handlerName)
+
+		if err != nil {
 			fmt.Errorf("ERR: %s", "Неверный запрос! Команды %s не существует!", handlerName)
 			continue
 		}
-		r := command.Array[1:]
-		result := handler(r, db)
+
+		args := request.Array[1:]
+		result := handler.Execute(args, db)
 
 		writer := NewWriter(conn)
 		writer.Write(result)

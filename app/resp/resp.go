@@ -1,4 +1,4 @@
-package main
+package resp
 
 import (
 	"bufio"
@@ -17,10 +17,10 @@ const (
 )
 
 type Value struct {
-	Type   string
-	Array  []Value
-	String string
-	Bulk   string
+	Type    string
+	Array   []Value
+	String  string
+	Bulk    string
 	Expires int64
 }
 
@@ -28,7 +28,7 @@ type Parser struct {
 	reader *bufio.Reader
 }
 
-func NewResp(conn net.Conn) *Parser {
+func New(conn net.Conn) *Parser {
 	return &Parser{
 		reader: bufio.NewReader(conn),
 	}
