@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -14,11 +13,9 @@ type SetCommand struct {
 }
 
 func (c SetCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
-	fmt.Println("SET")
 	if len(args) < 2 {
 		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
 	}
-	fmt.Println(args)
 
 	key := args[0]
 	value := args[1]

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"strings"
@@ -21,7 +22,7 @@ func main() {
 
 	//Uncomment this block to pass the first stage
 
-	l, err := net.Listen("tcp", "0.0.0.0:6379")
+	listener, err := net.Listen("tcp", "0.0.0.0:6379")
 	if err != nil {
 		fmt.Println("Failed to bind to port 6379")
 		fmt.Println(err)
@@ -31,7 +32,7 @@ func main() {
 	db := db.New()
 
 	for {
-		conn, err := l.Accept()
+		conn, err := listener.Accept()
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
 			continue
@@ -43,19 +44,31 @@ func main() {
 func handle(conn net.Conn, db *db.DB) {
 	defer conn.Close()
 
+	parser := resp.New(conn)
+	writer := NewWriter(conn)
+	
 	for {
-		parser := resp.New(conn)
 		request, err := parser.Read()
 		if err != nil {
-			fmt.Errorf("ERR: %s", err.Error())
+			if err == io.EOF {
+				return
+			}
+			writer.Write(resp.Error(
+				fmt.Sprintf("ERR: %s", err.Error()),
+			))
 			continue
 		}
 		if request.Type != resp.ARRAY {
-			fmt.Errorf("ERR: %s", "Неверный запрос! Ожидался массив!")
+			writer.Write(resp.Error(
+				fmt.Sprintf("ERR: %s", "Неверный запрос! Ожидался массив!"),
+			))
 			continue
 		}
 		if len(request.Array) == 0 {
-			fmt.Errorf("ERR: %s", "Неверный запрос! Не переданы необходимые аргументы")
+			writer.Write(resp.Error(
+				fmt.Sprintf("ERR: %s", "Неверный запрос! Не переданы необходимые аргументы"),
+			))
+
 			continue
 		}
 
@@ -65,14 +78,15 @@ func handle(conn net.Conn, db *db.DB) {
 		handler, err := register.Get(handlerName)
 
 		if err != nil {
-			fmt.Errorf("ERR: %s", "Неверный запрос! Команды %s не существует!", handlerName)
+			writer.Write(resp.Error(
+				fmt.Sprintf("ERR unknown command '%s'", handlerName),
+			))
 			continue
 		}
 
 		args := request.Array[1:]
 		result := handler.Execute(args, db)
 
-		writer := NewWriter(conn)
 		writer.Write(result)
 	}
 }

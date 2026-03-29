@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/codecrafters-io/redis-starter-go/app/db"
@@ -12,7 +11,6 @@ type GetCommand struct {
 }
 
 func (c GetCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
-	fmt.Println("GET")
 	if len(args) < 1 {
 		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
 	}

@@ -13,7 +13,11 @@ func New() *ArgParser {
 }
 
 func (ap ArgParser) Parse(args []string, cmd Command) map[string]int {
-	for _, v := range args {
+	// for _, v := range args {
 		
+	// }
+
+	return map[string]int{
+		"sd": 1,
 	}
 }

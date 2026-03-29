@@ -11,6 +11,7 @@ import (
 const (
 	ARRAY  = "*"
 	STRING = "+"
+	INTEGER = ":"
 	BULK   = "$"
 	ERROR  = "-"
 	CRLF   = "\r\n"
@@ -18,9 +19,10 @@ const (
 
 type Value struct {
 	Type    string
-	Array   []Value
+	Integer int
 	String  string
 	Bulk    string
+	Array   []Value
 	Expires int64
 }
 
@@ -115,9 +117,18 @@ func (v Value) Marshal() []byte {
 		capacity := len(v.Bulk)
 
 		return []byte(BULK + strconv.Itoa(capacity) + CRLF + v.Bulk + CRLF)
+	case INTEGER:
+		return []byte(INTEGER + strconv.Itoa(v.Integer) + CRLF)
 	case ERROR:
 		return []byte(ERROR + v.String + CRLF)
 	}
 
 	return []byte{}
+}
+
+func Error(msg string) Value {
+	return Value{
+		Type:   ERROR,
+		String: msg,
+	}
 }
