@@ -14,15 +14,15 @@ func (c RpushCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
 	}
 
-	arg := args[1]
+	arg := args[1:]
 	value, ok := db.Sets[key.Bulk]
 	if !ok {
 		value = resp.Value{
 			Type: resp.ARRAY,
-			Array: []resp.Value{arg},
+			Array: arg,
 		}
 	} else {
-		value.Array = append(value.Array, arg)
+		value.Array = append(value.Array[:], arg[:]...)
 	}
 	
 	len := len(value.Array)
