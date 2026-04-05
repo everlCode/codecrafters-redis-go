@@ -17,7 +17,7 @@ func (c GetCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 
 	key := args[0]
 
-	value, ok := db.Sets[key.Bulk]
+	value, ok := db.Get(key.Bulk)
 	if !ok || (value.Expires != 0 && value.Expires < time.Now().UnixMilli()) {
 		return resp.Value{Type: resp.BULK, Bulk: ""}
 	}

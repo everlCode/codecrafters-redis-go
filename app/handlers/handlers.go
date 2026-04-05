@@ -12,6 +12,7 @@ const (
 	ECHO = "ECHO"
 	COMMAND = "COMMAND"
 	RPUSH = "RPUSH"
+	LRANGE = "LRANGE"
 )
 
 type Command interface {

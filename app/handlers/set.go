@@ -31,7 +31,7 @@ func (c SetCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 		}
 	}
 
-	db.Sets[key.Bulk] = value
+	db.Set(key.Bulk, value)
 
 	return resp.Value{Type: resp.STRING, String: "OK"}
 }
