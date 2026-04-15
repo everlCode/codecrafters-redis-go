@@ -57,12 +57,14 @@ func (c LRangeCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 		}
 	}
 
-	if end > lenght {
-		end = lenght
+	var v []resp.Value
+
+	if end >= lenght {
+		v = value.Array
+	} else {
+		v = value.Array[start : end+1]
 	}
-
-	v := value.Array[start : end+1]
-
+	
 	return resp.Value{
 		Type:  resp.ARRAY,
 		Array: v,
