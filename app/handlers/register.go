@@ -17,7 +17,6 @@ func NewRegister() *Register {
 	register.Add(&GetCommand{})
 	register.Add(&EchoCommand{})
 	register.Add(&RpushCommand{})
-	register.Add(&LRangeCommand{})
 
 	return register
 }
