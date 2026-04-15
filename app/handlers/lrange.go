@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/codecrafters-io/redis-starter-go/app/db"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -16,16 +18,23 @@ func (c LRangeCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 	startValue := args[1]
 	endValue := args[2]
 
-	start := startValue.Integer
-	end := endValue.Integer
-	if (start > end) {
+	if (startValue.Type != resp.BULK || endValue.Type != resp.BULK) {
 		return resp.Value{
 			Type: resp.ARRAY,
 			Array: []resp.Value{},
 		}
 	}
 
-	if (startValue.Type != resp.INTEGER || endValue.Type != resp.INTEGER) {
+	start, err := strconv.Atoi(startValue.Bulk)
+	if err != nil {
+		return resp.Value{Type: resp.ERROR, Bulk: err.Error()}
+	}
+	end, err := strconv.Atoi(endValue.Bulk)
+	if err != nil {
+		return resp.Value{Type: resp.ERROR, Bulk: err.Error()}
+	}
+	
+	if (start > end) {
 		return resp.Value{
 			Type: resp.ARRAY,
 			Array: []resp.Value{},
@@ -47,6 +56,10 @@ func (c LRangeCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 			Type: resp.ARRAY,
 			Array: []resp.Value{},
 		}
+	}
+
+	if end > lenght {
+		end = lenght
 	}
 
 	v := value.Array[start : end]

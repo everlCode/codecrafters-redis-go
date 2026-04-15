@@ -3,18 +3,19 @@ package resp
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"net"
 	"strconv"
 	"unicode/utf8"
 )
 
 const (
-	ARRAY  = "*"
-	STRING = "+"
+	ARRAY   = "*"
+	STRING  = "+"
 	INTEGER = ":"
-	BULK   = "$"
-	ERROR  = "-"
-	CRLF   = "\r\n"
+	BULK    = "$"
+	ERROR   = "-"
+	CRLF    = "\r\n"
 )
 
 type Value struct {
@@ -47,6 +48,8 @@ func (p *Parser) Read() (Value, error) {
 		return p.ReadArray()
 	case BULK:
 		return p.ReadBulk()
+	case INTEGER:
+		return p.ReadInteger()
 	default:
 		return Value{}, errors.New("Неизвестный тип")
 	}
@@ -56,10 +59,11 @@ func (p *Parser) ReadArray() (Value, error) {
 	v := Value{
 		Type: ARRAY,
 	}
-	len, err := p.ReadInteger()
+	value, err := p.ReadInteger()
 	if err != nil {
 		return Value{}, err
 	}
+	len := value.Integer
 
 	elements := make([]Value, 0, len)
 	for i := 0; i < len; i++ {
@@ -74,22 +78,22 @@ func (p *Parser) ReadArray() (Value, error) {
 	return v, nil
 }
 
-func (p *Parser) ReadInteger() (int, error) {
+func (p *Parser) ReadInteger() (Value, error) {
 	bytes, _, _ := p.reader.ReadLine()
-	len, err := strconv.Atoi(string(bytes))
+	value, err := strconv.Atoi(string(bytes))
 	if err != nil {
-		return 0, err
+		return Value{Type: ERROR}, err
 	}
 
-	return len, nil
+	return Value{Type: INTEGER, Integer: value}, nil
 }
 
 func (p *Parser) ReadBulk() (Value, error) {
-	capacity, err := p.ReadInteger()
+	value, err := p.ReadInteger()
 	if err != nil {
-		return Value{}, err
+		return Value{Type: ERROR}, errors.New(value.Bulk)
 	}
-
+	capacity := value.Integer
 	bytes, _, _ := p.reader.ReadLine()
 
 	str := string(bytes)
@@ -108,6 +112,14 @@ func (p *Parser) ReadBulk() (Value, error) {
 func (v Value) Marshal() []byte {
 	switch v.Type {
 	case ARRAY:
+		count := len(v.Array)
+		response := []byte(ARRAY + strconv.Itoa(count) + CRLF)
+		for _, item := range v.Array {
+			response = append(response, item.Marshal()...)
+		}
+		fmt.Println(string(response))
+
+		return response
 	case STRING:
 		return []byte(STRING + v.String + CRLF)
 	case BULK:
