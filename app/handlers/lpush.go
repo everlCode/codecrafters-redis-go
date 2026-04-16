@@ -15,7 +15,7 @@ func (c LpushCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 	}
 
 	arg := args[1:]
-	value, ok := db.Sets[key.Bulk]
+	value, ok := db.Get(key.Bulk)
 	if !ok {
 		value = resp.Value{
 			Type: resp.ARRAY,

@@ -19,7 +19,8 @@ func NewRegister() *Register {
 	register.Add(&LpushCommand{})
 	register.Add(&RpushCommand{})
 	register.Add(&LRangeCommand{})
-	register.Add(&LlenCommand{})
+	register.Add(&LLenCommand{})
+	register.Add(&LPopCommand{})
 
 	return register
 }

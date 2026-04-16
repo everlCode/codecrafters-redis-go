@@ -5,33 +5,30 @@ import (
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
-type RpushCommand struct {
+type LPopCommand struct {
 }
 
-func (c RpushCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
+func (c LPopCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 	key := args[0]
 	if key.Type != resp.BULK {
 		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
 	}
 
-	arg := args[1:]
 	value, ok := db.Get(key.Bulk)
 	if !ok {
 		value = resp.Value{
-			Type: resp.ARRAY,
-			Array: arg,
+			Type: resp.BULK,
 		}
-	} else {
-		value.Array = append(value.Array[:], arg[:]...)
-	}
-	
-	len := len(value.Array)
 
+		return value
+	}
+	v := value.Array[0]
+	value.Array = value.Array[1:]
 	db.Set(key.Bulk, value)
 
-	return resp.Value{Type: resp.INTEGER, Integer: len}
+	return resp.Value{Type: resp.BULK, Bulk: v.Bulk}
 }
 
-func (c RpushCommand) Name() string {
-	return RPUSH
+func (c LPopCommand) Name() string {
+	return LPOP
 }

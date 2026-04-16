@@ -15,6 +15,7 @@ const (
 	RPUSH = "RPUSH"
 	LRANGE = "LRANGE"
 	LLEN = "LLEN"
+	LPOP = "LPOP"
 )
 
 type Command interface {
