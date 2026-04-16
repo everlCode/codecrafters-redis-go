@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/codecrafters-io/redis-starter-go/app/db"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -14,6 +16,19 @@ func (c LPopCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
 	}
 
+	var count int = 1
+	if (len(args) > 1) {
+		v := args[1]
+		if v.Type != resp.BULK {
+			return resp.Value{Type: resp.ERROR} 
+		}
+		c, err := strconv.Atoi(v.Bulk)
+		count = c
+		if err != nil  {
+			return resp.Value{Type: resp.ERROR}
+		}
+	}
+	
 	value, ok := db.Get(key.Bulk)
 	if !ok {
 		value = resp.Value{
@@ -22,11 +37,27 @@ func (c LPopCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 
 		return value
 	}
-	v := value.Array[0]
-	value.Array = value.Array[1:]
+
+	lenght := len(value.Array)
+	if (count > lenght) {
+		count = lenght
+	}
+
+	var response resp.Value
+	if (count == 1) {
+		v := value.Array[0]
+		response.Type = resp.BULK
+		response.Bulk = v.Bulk
+	} else {
+		v := value.Array[:count]
+		response.Type = resp.ARRAY
+		response.Array = v
+	}
+	value.Array = value.Array[count:]
+	
 	db.Set(key.Bulk, value)
 
-	return resp.Value{Type: resp.BULK, Bulk: v.Bulk}
+	return response
 }
 
 func (c LPopCommand) Name() string {
