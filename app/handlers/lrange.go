@@ -36,6 +36,11 @@ func (c LRangeCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 
 	value, ok := db.Get(key.Bulk)
 	lenght := len(value.Array)
+
+	if (start < 0) {
+		start = start * -1 + 1
+	}
+
 	if (end < -1) {
 		end = lenght + end + 1
 	} else if (end < lenght && end > 0){
