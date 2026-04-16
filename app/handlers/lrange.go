@@ -33,22 +33,28 @@ func (c LRangeCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 	if (err != nil) {
 		return resp.Value{Type: resp.ERROR, Bulk: err.Error()}
 	}
-	if start > end {
+
+	value, ok := db.Get(key.Bulk)
+	lenght := len(value.Array)
+	if (end < -1) {
+		end = lenght + end + 1
+	} else if (end < lenght && end > 0){
+		end += 1
+	}
+
+	if start > end && end > 0 {
 		return resp.Value{
 			Type:  resp.ARRAY,
 			Array: []resp.Value{},
 		}
 	}
 
-	value, ok := db.Get(key.Bulk)
 	if !ok || value.Type != resp.ARRAY {
 		return resp.Value{
 			Type:  resp.ARRAY,
 			Array: []resp.Value{},
 		}
 	}
-
-	lenght := len(value.Array)
 
 	if start >= lenght {
 		return resp.Value{
@@ -57,12 +63,15 @@ func (c LRangeCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 		}
 	}
 
-	var v []resp.Value
 
+	var v []resp.Value
+	
 	if end >= lenght {
 		v = value.Array
+	} else if (end == -1) {
+		v = value.Array[start:]
 	} else {
-		v = value.Array[start : end+1]
+		v = value.Array[start : end]
 	}
 	
 	return resp.Value{
