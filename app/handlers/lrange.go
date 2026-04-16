@@ -39,6 +39,9 @@ func (c LRangeCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 
 	if (start < 0) {
 		start = lenght + start
+		if (start < 0) {
+			start = 0
+		}
 	}
 
 	if (end < -1) {
