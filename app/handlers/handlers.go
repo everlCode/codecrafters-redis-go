@@ -11,6 +11,7 @@ const (
 	GET  = "GET"
 	ECHO = "ECHO"
 	COMMAND = "COMMAND"
+	LPUSH = "LPUSH"
 	RPUSH = "RPUSH"
 	LRANGE = "LRANGE"
 )

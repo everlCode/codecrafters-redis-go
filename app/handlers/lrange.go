@@ -71,7 +71,6 @@ func (c LRangeCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 		}
 	}
 
-
 	var v []resp.Value
 
 	if (end == -1 || end >= lenght || end == 0) {
