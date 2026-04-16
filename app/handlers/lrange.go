@@ -50,7 +50,7 @@ func (c LRangeCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 		end += 1
 	}
 
-	if start > end && end > 0 {
+	if start > end && end >= 0 {
 		return resp.Value{
 			Type:  resp.ARRAY,
 			Array: []resp.Value{},
