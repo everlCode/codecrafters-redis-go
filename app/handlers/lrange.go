@@ -73,10 +73,8 @@ func (c LRangeCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
 
 
 	var v []resp.Value
-	
-	if end >= lenght {
-		v = value.Array
-	} else if (end == -1) {
+
+	if (end == -1 || end >= lenght) {
 		v = value.Array[start:]
 	} else {
 		v = value.Array[start : end]
