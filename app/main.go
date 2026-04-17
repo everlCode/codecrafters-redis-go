@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/codecrafters-io/redis-starter-go/app/db"
+	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/handlers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -20,8 +20,6 @@ func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
 
-	//Uncomment this block to pass the first stage
-
 	listener, err := net.Listen("tcp", "0.0.0.0:6379")
 	if err != nil {
 		fmt.Println("Failed to bind to port 6379")
@@ -29,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	db := db.New()
+	db := database.New()
 
 	for {
 		conn, err := listener.Accept()
@@ -41,12 +39,12 @@ func main() {
 	}
 }
 
-func handle(conn net.Conn, db *db.DB) {
+func handle(conn net.Conn, db *database.DB) {
 	defer conn.Close()
 
 	parser := resp.New(conn)
 	writer := NewWriter(conn)
-	
+
 	for {
 		request, err := parser.Read()
 		if err != nil {

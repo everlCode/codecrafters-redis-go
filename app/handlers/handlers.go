@@ -1,24 +1,25 @@
 package handlers
 
 import (
-	"github.com/codecrafters-io/redis-starter-go/app/db"
+	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
 const (
-	PING = "PING"
-	SET  = "SET"
-	GET  = "GET"
-	ECHO = "ECHO"
+	PING    = "PING"
+	SET     = "SET"
+	GET     = "GET"
+	ECHO    = "ECHO"
 	COMMAND = "COMMAND"
-	LPUSH = "LPUSH"
-	RPUSH = "RPUSH"
-	LRANGE = "LRANGE"
-	LLEN = "LLEN"
-	LPOP = "LPOP"
+	LPUSH   = "LPUSH"
+	RPUSH   = "RPUSH"
+	LRANGE  = "LRANGE"
+	LLEN    = "LLEN"
+	LPOP    = "LPOP"
+	BLPOP   = "BLPOP"
 )
 
 type Command interface {
-	Execute([]resp.Value, *db.DB) resp.Value
+	Execute([]resp.Value, *database.DB) resp.Value
 	Name() string
 }

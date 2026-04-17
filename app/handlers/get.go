@@ -3,14 +3,14 @@ package handlers
 import (
 	"time"
 
-	"github.com/codecrafters-io/redis-starter-go/app/db"
+	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
 type GetCommand struct {
 }
 
-func (c GetCommand) Execute(args []resp.Value, db *db.DB) resp.Value {
+func (c GetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	if len(args) < 1 {
 		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
 	}

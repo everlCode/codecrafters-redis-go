@@ -21,6 +21,7 @@ func NewRegister() *Register {
 	register.Add(&LRangeCommand{})
 	register.Add(&LLenCommand{})
 	register.Add(&LPopCommand{})
+	register.Add(&BlPopCommand{})
 
 	return register
 }
