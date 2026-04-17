@@ -32,7 +32,7 @@ func (db *DB) Set(key string, value resp.Value) {
 		waiter.Chanel <- value
 		return
 	}
-
+	db.mx.Unlock()
 	db.sets[key] = value
 }
 
