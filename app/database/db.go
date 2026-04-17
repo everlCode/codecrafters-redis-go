@@ -25,9 +25,10 @@ func New() *DB {
 
 func (db *DB) Set(key string, value resp.Value) {
 	db.mx.Lock()
-	defer db.mx.Unlock()
+	
 	if len(db.waiters[key]) > 0 {
 		waiter := db.PopWaiter(key)
+		db.mx.Unlock()
 		waiter.Chanel <- value
 		return
 	}
@@ -44,8 +45,6 @@ func (db *DB) Get(key string) (resp.Value, bool) {
 }
 
 func (db *DB) PopWaiter(key string) Waiter {
-	db.mx.Lock()
-	defer db.mx.Unlock()
 	return db.waiters[key][0]
 }
 
