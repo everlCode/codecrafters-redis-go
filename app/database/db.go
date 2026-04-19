@@ -2,6 +2,7 @@ package database
 
 import (
 	"sync"
+	"time"
 
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -14,6 +15,7 @@ type DB struct {
 
 type Waiter struct {
 	Chanel chan resp.Value
+	Timeout time.Time
 }
 
 func New() *DB {
@@ -27,9 +29,17 @@ func (db *DB) Set(key string, value resp.Value) {
 	db.mx.Lock()
 	
 	if len(db.waiters[key]) > 0 {
-		waiter := db.PopWaiter(key)
-		db.mx.Unlock()
-		waiter.Chanel <- value
+		for i := 0; i < len(db.waiters[key]); i++ {
+			waiter := db.PopWaiter(key)
+			if waiter.Timeout.IsZero() || !time.Now().After(waiter.Timeout) {
+				db.mx.Unlock()
+				waiter.Chanel <- value
+				break
+			} else {
+				db.mx.Unlock()
+			}
+		}
+		
 		return
 	}
 	db.mx.Unlock()
