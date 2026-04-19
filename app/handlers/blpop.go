@@ -31,16 +31,21 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	value, ok := db.Get(key.Bulk)
 	if ok {
-		v := value.Array[0]
-		value.Array = value.Array[1:]
-
-		db.Set(key.Bulk, value)
-
-		value = resp.Value{
-			Type:  resp.ARRAY,
-			Array: []resp.Value{resp.Value{Type: resp.BULK, Bulk: key.Bulk}, resp.Value{Type: resp.BULK, Bulk: v.Bulk}},
+		if len(value.Array) > 0 {
+			v := value.Array[0]
+			value.Array = value.Array[1:]
+			db.Set(key.Bulk, value)
+			value = resp.Value{
+				Type:  resp.ARRAY,
+				Array: []resp.Value{resp.Value{Type: resp.BULK, Bulk: key.Bulk}, resp.Value{Type: resp.BULK, Bulk: v.Bulk}},
+			}
+		} else {
+			value = resp.Value{
+				Type: resp.ARRAY,
+				Array: nil,
+			}
 		}
-
+		
 		return value
 	}
 

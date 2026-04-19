@@ -56,6 +56,9 @@ func (db *DB) Get(key string) (resp.Value, bool) {
 	db.mx.Lock()
 	defer db.mx.Unlock()
 	value, ok := db.sets[key]
+	if (len(db.sets) == 0) {
+		delete(db.sets, key)
+	}
 
 	return value, ok
 }
