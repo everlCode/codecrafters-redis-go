@@ -21,5 +21,4 @@ const (
 
 type Command interface {
 	Execute([]resp.Value, *database.DB) resp.Value
-	Name() string
 }

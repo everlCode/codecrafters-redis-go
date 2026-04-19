@@ -59,7 +59,3 @@ func (c LPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	return response
 }
-
-func (c LPopCommand) Name() string {
-	return LPOP
-}

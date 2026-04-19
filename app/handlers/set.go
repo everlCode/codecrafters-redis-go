@@ -35,7 +35,3 @@ func (c SetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	return resp.Value{Type: resp.STRING, String: "OK"}
 }
-
-func (c SetCommand) Name() string {
-	return SET
-}

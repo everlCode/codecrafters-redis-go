@@ -31,7 +31,3 @@ func (c RpushCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	return resp.Value{Type: resp.INTEGER, Integer: len}
 }
-
-func (c RpushCommand) Name() string {
-	return RPUSH
-}

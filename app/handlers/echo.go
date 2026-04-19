@@ -15,7 +15,3 @@ func (c EchoCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	return resp.Value{Type: resp.BULK, Bulk: args[0].Bulk}
 }
-
-func (c EchoCommand) Name() string {
-	return ECHO
-}

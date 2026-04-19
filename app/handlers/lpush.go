@@ -33,7 +33,3 @@ func (c LpushCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	return resp.Value{Type: resp.INTEGER, Integer: lenght}
 }
-
-func (c LpushCommand) Name() string {
-	return LPUSH
-}

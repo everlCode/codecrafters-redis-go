@@ -12,22 +12,22 @@ func NewRegister() *Register {
 	register := &Register{
 		commands: make(map[string]Command),
 	}
-	register.Add(&PingCommand{})
-	register.Add(&SetCommand{})
-	register.Add(&GetCommand{})
-	register.Add(&EchoCommand{})
-	register.Add(&LpushCommand{})
-	register.Add(&RpushCommand{})
-	register.Add(&LRangeCommand{})
-	register.Add(&LLenCommand{})
-	register.Add(&LPopCommand{})
-	register.Add(&BlPopCommand{})
+	register.Add(PING, &PingCommand{})
+	register.Add(SET, &SetCommand{})
+	register.Add(GET, &GetCommand{})
+	register.Add(ECHO, &EchoCommand{})
+	register.Add(LPUSH, &LpushCommand{})
+	register.Add(RPUSH, &RpushCommand{})
+	register.Add(LRANGE, &LRangeCommand{})
+	register.Add(LLEN, &LLenCommand{})
+	register.Add(LPOP, &LPopCommand{})
+	register.Add(BLPOP, &BlPopCommand{})
 
 	return register
 }
 
-func (r *Register) Add(command Command) {
-	r.commands[command.Name()] = command
+func (r *Register) Add(name string, command Command) {
+	r.commands[name] = command
 }
 
 func (r *Register) Get(name string) (Command, error) {

@@ -84,7 +84,3 @@ func (c LRangeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		Array: v,
 	}
 }
-
-func (c LRangeCommand) Name() string {
-	return LRANGE
-}

@@ -42,11 +42,11 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 			}
 		} else {
 			value = resp.Value{
-				Type: resp.ARRAY,
+				Type:  resp.ARRAY,
 				Array: nil,
 			}
 		}
-		
+
 		return value
 	}
 
@@ -59,23 +59,18 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		response = <-ch
 	} else {
 		select {
-			case v := <-ch:
-				response = v
-			case <-time.After(timeout):
+		case v := <-ch:
+			response = v
+		case <-time.After(timeout):
 			return resp.Value{
 				Type:  resp.ARRAY,
 				Array: nil,
-		}
+			}
 		}
 	}
-	
 
 	return resp.Value{
 		Type:  resp.ARRAY,
 		Array: []resp.Value{resp.Value{Type: resp.BULK, Bulk: key.Bulk}, resp.Value{Type: resp.BULK, Bulk: response.Array[0].Bulk}},
 	}
-}
-
-func (c BlPopCommand) Name() string {
-	return BLPOP
 }

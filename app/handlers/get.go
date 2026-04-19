@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"time"
+щ	"time"
 
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
@@ -23,8 +23,4 @@ func (c GetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 
 	return value
-}
-
-func (c GetCommand) Name() string {
-	return GET
 }
