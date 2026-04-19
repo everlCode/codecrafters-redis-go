@@ -53,8 +53,8 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		response = v
 	case <-time.After(timeout):
 		return resp.Value{
-			Type: resp.BULK,
-			Bulk: "",
+			Type: resp.ARRAY,
+			Array: []resp.Value{},
 		}
 	}
 
