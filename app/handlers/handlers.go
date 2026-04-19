@@ -17,6 +17,7 @@ const (
 	LLEN    = "LLEN"
 	LPOP    = "LPOP"
 	BLPOP   = "BLPOP"
+	TYPE   = "TYPE"
 )
 
 type Command interface {

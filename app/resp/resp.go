@@ -145,3 +145,7 @@ func Error(msg string) Value {
 		String: msg,
 	}
 }
+
+func String(value string) Value {
+	return Value{Type: STRING, String: value}
+}
