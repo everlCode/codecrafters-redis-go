@@ -24,9 +24,10 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		if err != nil {
 			return resp.Value{Type: resp.ERROR, String: err.Error()}
 		}
-
-		timeout = time.Duration(v * float64(time.Second))
-		endDate = time.Now().Add(timeout)
+		if v != 0 {
+			timeout = time.Duration(v * float64(time.Second))
+			endDate = time.Now().Add(timeout)
+		}
 	}
 
 	value, ok := db.Get(key.Bulk)
@@ -53,15 +54,21 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	db.PushWaiter(key.Bulk, &database.Waiter{Chanel: ch, Timeout: endDate})
 
 	var response resp.Value
-	select {
-	case v := <-ch:
-		response = v
-	case <-time.After(timeout):
-		return resp.Value{
-			Type:  resp.ARRAY,
-			Array: nil,
+
+	if timeout == 0 {
+		response = <-ch
+	} else {
+		select {
+			case v := <-ch:
+				response = v
+			case <-time.After(timeout):
+			return resp.Value{
+				Type:  resp.ARRAY,
+				Array: nil,
+		}
 		}
 	}
+	
 
 	return resp.Value{
 		Type:  resp.ARRAY,
