@@ -108,7 +108,13 @@ func (p *Parser) ReadBulk() (Value, error) {
 func (v Value) Marshal() []byte {
 	switch v.Type {
 	case ARRAY:
-		count := len(v.Array)
+		var count int
+		if v.Array == nil {
+			count = -1
+		} else {
+			count = len(v.Array)
+		}
+		
 		response := []byte(ARRAY + strconv.Itoa(count) + CRLF)
 		for _, item := range v.Array {
 			response = append(response, item.Marshal()...)

@@ -54,7 +54,7 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	case <-time.After(timeout):
 		return resp.Value{
 			Type: resp.ARRAY,
-			Array: []resp.Value{},
+			Array: nil,
 		}
 	}
 
