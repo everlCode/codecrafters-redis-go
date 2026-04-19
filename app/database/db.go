@@ -64,7 +64,12 @@ func (db *DB) Get(key string) (resp.Value, bool) {
 }
 
 func (db *DB) PopWaiter(key string) *Waiter {
-	return db.waiters[key][0]
+	waiter := db.waiters[key][0]
+	if len (db.waiters[key]) > 0 {
+		db.waiters[key] = db.waiters[key][1:]
+	}
+	
+	return waiter
 }
 
 func (db *DB) PushWaiter(key string, w *Waiter) {
