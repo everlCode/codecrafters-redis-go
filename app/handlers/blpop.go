@@ -45,7 +45,7 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 
 	ch := make(chan resp.Value)
-	db.PushWaiter(key.Bulk, database.Waiter{Chanel: ch, Timeout: endDate})
+	db.PushWaiter(key.Bulk, &database.Waiter{Chanel: ch, Timeout: endDate})
 
 	var response resp.Value
 	select {
@@ -53,7 +53,7 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		response = v
 	case <-time.After(timeout):
 		return resp.Value{
-			Type: resp.ARRAY,
+			Type:  resp.ARRAY,
 			Array: nil,
 		}
 	}
