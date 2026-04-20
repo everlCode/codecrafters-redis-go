@@ -20,7 +20,7 @@ func (c SetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	key := args[0]
 	value := args[1]
 	var entry database.Entry
-	entry.Set(value.Marshal())
+	entry.Set(value.Bulk)
 
 	if len(args) > 3 {
 		commnadOption := args[2]
