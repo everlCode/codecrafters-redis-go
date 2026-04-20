@@ -35,6 +35,7 @@ func (c XaddCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		stream.Add(id, streamData)
 		entry.Set(stream)
 	}
+	db.Set(key, entry)
 
 	return resp.Bulk(id)
 }

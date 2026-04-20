@@ -9,7 +9,7 @@ const (
 	UNKNOWN = 0
 	STRING  = 1
 	ARRAY   = 2
-	STREAM   = 2
+	STREAM  = 2
 )
 
 type DB struct {
@@ -102,9 +102,9 @@ func CreateStream(id string, data map[string]string) Entry {
 }
 
 func NewStream() Stream {
-    return Stream{
-        data: make(map[string]map[string]string),
-    }
+	return Stream{
+		data: make(map[string]map[string]string),
+	}
 }
 
 func (v Entry) GetType() int {
@@ -113,6 +113,8 @@ func (v Entry) GetType() int {
 		return STRING
 	case []string:
 		return ARRAY
+	case Stream:
+		return STREAM
 	default:
 		return UNKNOWN
 	}
