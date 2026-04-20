@@ -165,6 +165,13 @@ func Array(value []string) Value {
 	return Value{Type: ARRAY, Array: data}
 }
 
+func EmptyArray() Value {
+	return Value{
+		Type:  ARRAY,
+		Array: []Value{},
+	}
+}
+
 func ParseSlice(input []Value) []string {
 	var data []string
 
