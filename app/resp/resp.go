@@ -145,8 +145,12 @@ func Error(msg string) Value {
 	}
 }
 
-func String(value string) Value {
+func SimpleString(value string) Value {
 	return Value{Type: STRING, String: value}
+}
+
+func Bulk(value string) Value {
+	return Value{Type: BULK, Bulk: value}
 }
 
 func Integer(value int) Value {

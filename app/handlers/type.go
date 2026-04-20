@@ -16,13 +16,13 @@ func (c TypeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	entry, ok := db.Get(key.Bulk)
 	if !ok {
-		return resp.String("none")
+		return resp.SimpleString("none")
 	}
 
 	var response resp.Value
 	switch entry.GetType() {
 	case database.STRING:
-		response = resp.String("string")
+		response = resp.SimpleString("string")
 	}
 
 	return response

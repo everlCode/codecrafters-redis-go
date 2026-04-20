@@ -35,5 +35,5 @@ func (c SetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	db.Set(key.Bulk, entry)
 
-	return resp.String("OK")
+	return resp.SimpleString("OK")
 }

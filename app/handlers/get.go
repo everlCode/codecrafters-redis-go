@@ -23,5 +23,5 @@ func (c GetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 	str, _ := value.AsString()
 
-	return resp.String(str)
+	return resp.SimpleString(str)
 }
