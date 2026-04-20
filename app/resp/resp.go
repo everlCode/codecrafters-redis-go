@@ -158,7 +158,7 @@ func Integer(value int) Value {
 }
 
 func Array(value []string) Value {
-	var data []Value
+	var data []Value = []Value{}
 	for i := 0; i < len(value); i++ {
 		data = append(data, Value{Type: BULK, Bulk: value[i]})
 	}
