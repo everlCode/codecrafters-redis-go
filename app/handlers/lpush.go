@@ -20,13 +20,13 @@ func (c LpushCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 	argss := resp.ParseSlice(args)
 	for i := 0; i < len(argss); i++ {
-		data, _ := entry.AsArray()
+		data := entry.AsArray()
 		
 		var a = []string{argss[i]}
 		entry.Set(append(a, data...))
 	}
 
-	arr, _ := entry.AsArray()
+	arr := entry.AsArray()
 	lenght := len(arr)
 
 	db.Set(key.Bulk, entry)

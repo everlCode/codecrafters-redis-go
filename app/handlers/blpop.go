@@ -34,7 +34,7 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	if ok {
 		var response resp.Value
 		if entry.IsArray() {
-			value, ok := entry.AsArray()
+			value := entry.AsArray()
 			if ok {
 				if len(value) > 0 {
 					firstValue := value[0]
@@ -59,8 +59,6 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	ch := make(chan database.Entry)
 	db.PushWaiter(key.Bulk, &database.Waiter{Chanel: ch, Timeout: endDate})
 
-	var response resp.Value
-
 	if timeout == 0 {
 		entry = <-ch
 	} else {
@@ -74,9 +72,10 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 			}
 		}
 	}
-
-	return resp.Value{
-		Type:  resp.ARRAY,
-		Array: []resp.Value{resp.Value{Type: resp.BULK, Bulk: key.Bulk}, resp.Value{Type: resp.BULK, Bulk: response.Array[0].Bulk}},
+	data := entry.AsArray()
+	if len(data) > 0 {
+		data = []string{key.Bulk, data[0]}
 	}
+
+	return resp.Array(data)
 }

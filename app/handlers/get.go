@@ -21,7 +21,7 @@ func (c GetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	if !ok || (value.Expires != 0 && value.Expires < time.Now().UnixMilli()) {
 		return resp.Value{Type: resp.BULK, Bulk: ""}
 	}
-	str, _ := value.AsString()
+	str := value.AsString()
 
 	return resp.SimpleString(str)
 }

@@ -35,7 +35,7 @@ func (c LRangeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 
 	entry, ok := db.Get(key.Bulk)
-	data, _ := entry.AsArray()
+	data := entry.AsArray()
 	lenght := len(data)
 
 	if start < 0 {

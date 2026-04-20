@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -77,14 +78,17 @@ func (db *DB) Get(key string) (Entry, bool) {
 	return value, ok
 }
 
-func (v Entry) AsString() (string, bool) {
+func (v Entry) AsString() string {
 	a, ok := v.value.(string)
-	return a, ok
+	if !ok {
+		panic(fmt.Sprintf("value is not string: %T", v.value))
+	}
+	return a
 }
 
-func (v Entry) AsArray() ([]string, bool) {
-	a, ok := v.value.([]string)
-	return a, ok
+func (v Entry) AsArray() ([]string) {
+	a, _ := v.value.([]string)
+	return a
 }
 
 func (v Entry) AsStream() (Stream, bool) {

@@ -37,7 +37,7 @@ func (c LPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		}
 	}
 
-	value, _ := entry.AsArray()
+	value := entry.AsArray()
 	lenght := len(value)
 	if count > lenght {
 		count = lenght
