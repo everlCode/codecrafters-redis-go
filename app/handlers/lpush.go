@@ -19,7 +19,7 @@ func (c LpushCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		entry = database.Array([]string{})
 	}
 
-	argss := resp.ParseSlice(args)
+	argss := resp.ParseSlice(args[1:])
 	for i := range argss {
 		data := entry.AsArray()
 		
