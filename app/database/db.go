@@ -22,6 +22,10 @@ type Entry struct {
 	Expires int64
 }
 
+type Stream struct {
+	data map[string]map[string]string
+}
+
 type Waiter struct {
 	Chanel  chan Entry
 	Timeout time.Time
@@ -77,32 +81,60 @@ func (v Entry) AsString() (string, bool) {
 	return a, ok
 }
 
-func (v Entry) AsArray() ([]any, bool) {
-	a, ok := v.value.([]any)
+func (v Entry) AsArray() ([]string, bool) {
+	a, ok := v.value.([]string)
 	return a, ok
+}
+
+func (v Entry) AsStream() (Stream, bool) {
+	a, ok := v.value.(Stream)
+	return a, ok
+}
+
+func CreateStream(id string, data map[string]string) Entry {
+	entry := Entry{}
+	stream := NewStream()
+	stream.Add(id, data)
+	entry.Set(stream)
+
+	return entry
+}
+
+func NewStream() Stream {
+    return Stream{
+        data: make(map[string]map[string]string),
+    }
 }
 
 func (v Entry) GetType() int {
 	switch v.value.(type) {
 	case string:
 		return STRING
-	case []any:
+	case []string:
 		return ARRAY
 	default:
 		return UNKNOWN
 	}
 }
 
-func (v Entry) IsArray() bool {
-	return v.GetType() == ARRAY
+func (e Entry) IsArray() bool {
+	return e.GetType() == ARRAY
 }
 
-func Array(data []any) Entry {
+func (e Entry) IsExpired() bool {
+	return e.Expires != 0 && e.Expires < time.Now().UnixMilli()
+}
+
+func Array(data []string) Entry {
 	return Entry{value: data}
 }
 
 func (v *Entry) Set(a any) {
 	v.value = a
+}
+
+func (stream *Stream) Add(id string, data map[string]string) {
+	stream.data[id] = data
 }
 
 func (db *DB) PopWaiter(key string) *Waiter {

@@ -44,7 +44,7 @@ func (c LPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 
 	if count == 1 {
-		v := value[0].(string)
+		v := value[0]
 		response.Type = resp.BULK
 		response.Bulk = v
 	} else {

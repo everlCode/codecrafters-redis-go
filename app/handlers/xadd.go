@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"time"
-
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -11,16 +9,32 @@ type XaddCommand struct {
 }
 
 func (c XaddCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
-	if len(args) < 1 {
+	argss := resp.ParseSlice(args)
+	if len(argss) < 4 {
 		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
 	}
 
-	key := args[0]
+	key := argss[0]
+	id := argss[1]
+	data := argss[2:]
 
-	entry, ok := db.Get(key.Bulk)
-	if !ok || (entry.Expires != 0 && entry.Expires < time.Now().UnixMilli()) {
-		return resp.Value{Type: resp.BULK, Bulk: ""}
+	streamData := make(map[string]string)
+	for i := 0; i < len(data); i++ {
+		if i%2 == 0 {
+			streamData[data[i]] = ""
+		} else {
+			streamData[data[i-1]] = data[i]
+		}
 	}
 
-	return resp.Value{}
+	entry, ok := db.Get(key)
+	if !ok {
+		entry = database.CreateStream(id, streamData)
+	} else {
+		stream, _ := entry.AsStream()
+		stream.Add(id, streamData)
+		entry.Set(stream)
+	}
+
+	return resp.String(id)
 }

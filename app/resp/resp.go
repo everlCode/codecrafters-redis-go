@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	ARRAY  = "*"
-	STRING = "+"
+	ARRAY   = "*"
+	STRING  = "+"
 	INTEGER = ":"
-	BULK   = "$"
-	ERROR  = "-"
-	CRLF   = "\r\n"
+	BULK    = "$"
+	ERROR   = "-"
+	CRLF    = "\r\n"
 )
 
 type Value struct {
@@ -113,7 +113,7 @@ func (v Value) Marshal() []byte {
 		} else {
 			count = len(v.Array)
 		}
-		
+
 		response := []byte(ARRAY + strconv.Itoa(count) + CRLF)
 		for _, item := range v.Array {
 			response = append(response, item.Marshal()...)
@@ -153,19 +153,19 @@ func Integer(value int) Value {
 	return Value{Type: INTEGER, Integer: value}
 }
 
-func Array(value []any) Value {
+func Array(value []string) Value {
 	var data []Value
 	for i := 0; i < len(value); i++ {
-		data = append(data, Value{Type: BULK, Bulk: value[i].(string)})
+		data = append(data, Value{Type: BULK, Bulk: value[i]})
 	}
 	return Value{Type: ARRAY, Array: data}
 }
 
-func ParseSlice(input []Value) []any {
-	var data []any
+func ParseSlice(input []Value) []string {
+	var data []string
 
 	for i := 0; i < len(input); i++ {
-		data = append(data, input[i].Marshal())
+		data = append(data, input[i].Bulk)
 	}
 
 	return data

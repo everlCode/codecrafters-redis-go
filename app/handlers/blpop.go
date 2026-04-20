@@ -37,7 +37,7 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 			value, ok := entry.AsArray()
 			if ok {
 				if len(value) > 0 {
-					firstValue := value[0].(string)
+					firstValue := value[0]
 					entry.Set(value[1:])
 					db.Set(key.Bulk, entry)
 					response = resp.Value{

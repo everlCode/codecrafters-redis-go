@@ -14,15 +14,15 @@ func (c LpushCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
 	}
 
-	arg := args[1:]
 	entry, ok := db.Get(key.Bulk)
 	if !ok {
-		return resp.Array([]any{})
+		return resp.Array([]string{})
 	}
-	for i := 0; i < len(arg); i++ {
+	argss := resp.ParseSlice(args)
+	for i := 0; i < len(argss); i++ {
 		data, _ := entry.AsArray()
 		
-		var a = []any{arg[i]}
+		var a = []string{argss[i]}
 		entry.Set(append(a, data...))
 	}
 
