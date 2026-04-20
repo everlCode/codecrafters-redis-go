@@ -15,14 +15,15 @@ func (c LLenCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 
 	value, ok := db.Get(key.Bulk)
-	if !ok {
-		value = resp.Value{
+	var response resp.Value
+	if !ok || value.IsArray() {
+		response = resp.Value{
 			Type:  resp.ARRAY,
 			Array: []resp.Value{},
 		}
 	}
 
-	lenght := len(value.Array)
+	lenght := len(response.Array)
 
-	return resp.Value{Type: resp.INTEGER, Integer: lenght}
+	return resp.Integer(lenght)
 }

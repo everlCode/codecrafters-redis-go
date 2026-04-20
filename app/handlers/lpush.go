@@ -15,21 +15,21 @@ func (c LpushCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 
 	arg := args[1:]
-	value, ok := db.Get(key.Bulk)
+	entry, ok := db.Get(key.Bulk)
 	if !ok {
-		value = resp.Value{
-			Type:  resp.ARRAY,
-			Array: []resp.Value{},
-		}
+		return resp.Array([]any{})
 	}
 	for i := 0; i < len(arg); i++ {
-		var a = []resp.Value{arg[i]}
-		value.Array = append(a, value.Array...)
+		data, _ := entry.AsArray()
+		
+		var a = []any{arg[i]}
+		entry.Set(append(a, data...))
 	}
 
-	lenght := len(value.Array)
+	arr, _ := entry.AsArray()
+	lenght := len(arr)
 
-	db.Set(key.Bulk, value)
+	db.Set(key.Bulk, entry)
 
-	return resp.Value{Type: resp.INTEGER, Integer: lenght}
+	return resp.Integer(lenght)
 }

@@ -19,6 +19,8 @@ func (c SetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	key := args[0]
 	value := args[1]
+	var entry database.Entry
+	entry.Set(value.Marshal())
 
 	if len(args) > 3 {
 		commnadOption := args[2]
@@ -27,11 +29,11 @@ func (c SetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 			if err != nil {
 				return resp.Value{Type: resp.ERROR, String: "Invalid argument"}
 			}
-			value.Expires = time.Now().UnixMilli() + px
+			entry.Expires = time.Now().UnixMilli() + px
 		}
 	}
 
-	db.Set(key.Bulk, value)
+	db.Set(key.Bulk, entry)
 
-	return resp.Value{Type: resp.STRING, String: "OK"}
+	return resp.String("OK")
 }

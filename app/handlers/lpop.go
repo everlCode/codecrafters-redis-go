@@ -29,33 +29,31 @@ func (c LPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		}
 	}
 
-	value, ok := db.Get(key.Bulk)
-	if !ok {
-		value = resp.Value{
+	entry, ok := db.Get(key.Bulk)
+	var response resp.Value
+	if !ok || !entry.IsArray() {
+		return resp.Value{
 			Type: resp.BULK,
 		}
-
-		return value
 	}
 
-	lenght := len(value.Array)
+	value, _ := entry.AsArray()
+	lenght := len(value)
 	if count > lenght {
 		count = lenght
 	}
 
-	var response resp.Value
 	if count == 1 {
-		v := value.Array[0]
+		v := value[0].(string)
 		response.Type = resp.BULK
-		response.Bulk = v.Bulk
+		response.Bulk = v
 	} else {
-		v := value.Array[:count]
-		response.Type = resp.ARRAY
-		response.Array = v
+		v := value[:count]
+		response = resp.Array(v)
 	}
-	value.Array = value.Array[count:]
+	entry.Set(value[count:])
 
-	db.Set(key.Bulk, value)
+	db.Set(key.Bulk, entry)
 
 	return response
 }

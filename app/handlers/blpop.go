@@ -30,37 +30,43 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		}
 	}
 
-	value, ok := db.Get(key.Bulk)
+	entry, ok := db.Get(key.Bulk)
 	if ok {
-		if len(value.Array) > 0 {
-			v := value.Array[0]
-			value.Array = value.Array[1:]
-			db.Set(key.Bulk, value)
-			value = resp.Value{
-				Type:  resp.ARRAY,
-				Array: []resp.Value{resp.Value{Type: resp.BULK, Bulk: key.Bulk}, resp.Value{Type: resp.BULK, Bulk: v.Bulk}},
+		var response resp.Value
+		if entry.IsArray() {
+			value, ok := entry.AsArray()
+			if ok {
+				if len(value) > 0 {
+					firstValue := value[0].(string)
+					entry.Set(value[1:])
+					db.Set(key.Bulk, entry)
+					response = resp.Value{
+						Type:  resp.ARRAY,
+						Array: []resp.Value{resp.Value{Type: resp.BULK, Bulk: key.Bulk}, resp.Value{Type: resp.BULK, Bulk: firstValue}},
+					}
+				}
 			}
 		} else {
-			value = resp.Value{
+			response = resp.Value{
 				Type:  resp.ARRAY,
 				Array: nil,
 			}
 		}
 
-		return value
+		return response
 	}
 
-	ch := make(chan resp.Value)
+	ch := make(chan database.Entry)
 	db.PushWaiter(key.Bulk, &database.Waiter{Chanel: ch, Timeout: endDate})
 
 	var response resp.Value
 
 	if timeout == 0 {
-		response = <-ch
+		entry = <-ch
 	} else {
 		select {
 		case v := <-ch:
-			response = v
+			entry = v
 		case <-time.After(timeout):
 			return resp.Value{
 				Type:  resp.ARRAY,

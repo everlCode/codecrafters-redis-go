@@ -14,14 +14,14 @@ func (c TypeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
 	}
 
-	value, ok := db.Get(key.Bulk)
+	entry, ok := db.Get(key.Bulk)
 	if !ok {
 		return resp.String("none")
 	}
 
 	var response resp.Value
-	switch value.Type {
-	case resp.BULK:
+	switch entry.GetType() {
+	case database.STRING:
 		response = resp.String("string")
 	}
 

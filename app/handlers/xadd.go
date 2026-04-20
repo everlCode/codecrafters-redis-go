@@ -7,21 +7,20 @@ import (
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
-type GetCommand struct {
+type XaddCommand struct {
 }
 
-func (c GetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+func (c XaddCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	if len(args) < 1 {
 		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
 	}
 
 	key := args[0]
 
-	value, ok := db.Get(key.Bulk)
-	if !ok || (value.Expires != 0 && value.Expires < time.Now().UnixMilli()) {
+	entry, ok := db.Get(key.Bulk)
+	if !ok || (entry.Expires != 0 && entry.Expires < time.Now().UnixMilli()) {
 		return resp.Value{Type: resp.BULK, Bulk: ""}
 	}
-	str, _ := value.AsString()
 
-	return resp.String(str)
+	return resp.Value{}
 }

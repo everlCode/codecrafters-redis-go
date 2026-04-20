@@ -23,6 +23,7 @@ func NewRegister() *Register {
 	register.Add(LPOP, &LPopCommand{})
 	register.Add(BLPOP, &BlPopCommand{})
 	register.Add(TYPE, &TypeCommand{})
+	register.Add(XADD, &XaddCommand{})
 
 	return register
 }

@@ -15,19 +15,19 @@ func (c RpushCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 
 	arg := args[1:]
-	value, ok := db.Get(key.Bulk)
+	entry, ok := db.Get(key.Bulk)
+	var value []any
 	if !ok {
-		value = resp.Value{
-			Type:  resp.ARRAY,
-			Array: arg,
-		}
+		entry = database.Array(resp.ParseSlice(arg))
 	} else {
-		value.Array = append(value.Array[:], arg[:]...)
+		value, _ := entry.AsArray()
+		args := resp.ParseSlice(arg)
+		entry.Set(append(value[:], args[:]...))
 	}
 
-	len := len(value.Array)
+	len := len(value)
 
-	db.Set(key.Bulk, value)
+	db.Set(key.Bulk, entry)
 
 	return resp.Value{Type: resp.INTEGER, Integer: len}
 }

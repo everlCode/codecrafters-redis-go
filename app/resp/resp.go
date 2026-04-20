@@ -23,7 +23,6 @@ type Value struct {
 	String  string
 	Bulk    string
 	Array   []Value
-	Expires int64
 }
 
 type Parser struct {
@@ -148,4 +147,26 @@ func Error(msg string) Value {
 
 func String(value string) Value {
 	return Value{Type: STRING, String: value}
+}
+
+func Integer(value int) Value {
+	return Value{Type: INTEGER, Integer: value}
+}
+
+func Array(value []any) Value {
+	var data []Value
+	for i := 0; i < len(value); i++ {
+		data = append(data, Value{Type: BULK, Bulk: value[i].(string)})
+	}
+	return Value{Type: ARRAY, Array: data}
+}
+
+func ParseSlice(input []Value) []any {
+	var data []any
+
+	for i := 0; i < len(input); i++ {
+		data = append(data, input[i].Marshal())
+	}
+
+	return data
 }
