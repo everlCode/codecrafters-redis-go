@@ -19,11 +19,15 @@ func (c TypeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		return resp.SimpleString("none")
 	}
 
-	var response resp.Value
+	var response string
 	switch entry.GetType() {
 	case database.STRING:
-		response = resp.SimpleString("string")
+		response = "string"
+	case database.STREAM:
+		response = "stream"
+	default:
+		response = "undefined"
 	}
 
-	return response
+	return resp.SimpleString(response)
 }

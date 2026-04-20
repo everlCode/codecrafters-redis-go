@@ -9,6 +9,7 @@ const (
 	UNKNOWN = 0
 	STRING  = 1
 	ARRAY   = 2
+	STREAM   = 2
 )
 
 type DB struct {
