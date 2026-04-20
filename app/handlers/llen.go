@@ -15,7 +15,7 @@ func (c LLenCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 
 	value, ok := db.Get(key.Bulk)
-	if !ok || value.IsArray() {
+	if !ok || !value.IsArray() {
 		return resp.EmptyArray()
 	}
 
