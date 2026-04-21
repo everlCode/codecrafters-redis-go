@@ -2,6 +2,8 @@ package database
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -26,6 +28,7 @@ type Entry struct {
 
 type Stream struct {
 	data map[string]map[string]string
+	id   string
 }
 
 type Waiter struct {
@@ -86,7 +89,7 @@ func (v Entry) AsString() string {
 	return a
 }
 
-func (v Entry) AsArray() ([]string) {
+func (v Entry) AsArray() []string {
 	a, _ := v.value.([]string)
 	return a
 }
@@ -96,13 +99,34 @@ func (v Entry) AsStream() (Stream, bool) {
 	return a, ok
 }
 
-func CreateStream(id string, data map[string]string) Entry {
-	entry := Entry{}
+func (s Stream) GetLastId() string {
+	return s.id
+}
+
+func (s Stream) GetLastIdParts() (int, int) {
+	parts := strings.Split(s.id, "-")
+	if len(parts) < 2 {
+		return 0, 0
+	}
+
+	miliseconds, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return 0, 0
+	}
+
+	id, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return 0, 0
+	}
+
+	return miliseconds, id
+}
+
+func CreateStream(id string, data map[string]string) Stream {
 	stream := NewStream()
 	stream.Add(id, data)
-	entry.Set(stream)
 
-	return entry
+	return stream
 }
 
 func NewStream() Stream {
@@ -142,6 +166,7 @@ func (v *Entry) Set(a any) {
 
 func (stream *Stream) Add(id string, data map[string]string) {
 	stream.data[id] = data
+	stream.id = id
 }
 
 func (db *DB) PopWaiter(key string) *Waiter {
