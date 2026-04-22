@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
@@ -91,11 +92,19 @@ func (c XaddCommand) validateId(id string, lastId string) (bool, error) {
 }
 
 func (c XaddCommand) generateId(id string, lastId string) string {
-	parts := strings.Split(id, "-")
-	if len(parts) < 2 {
-		return "0-1"
+	var parts[]string
+	if id == "*" {
+		parts = []string{"*", "*"}
+	} else {
+		parts = strings.Split(id, "-")
+		if len(parts) < 2 {
+			return "0-1"
+		}
 	}
-
+	if parts[0] == "*" {
+		curTime := time.Now().UnixMilli()
+		parts[0] = strconv.Itoa(int(curTime))
+	}
 	lastTime, lastIndetificator := GetIdParts(lastId)
 	currentTime, _ := strconv.Atoi(parts[0])
 	if parts[1] == "*" {
