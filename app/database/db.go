@@ -2,8 +2,6 @@ package database
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 	"sync"
 	"time"
 )
@@ -12,7 +10,7 @@ const (
 	UNKNOWN = 0
 	STRING  = 1
 	ARRAY   = 2
-	STREAM  = 2
+	STREAM  = 3
 )
 
 type DB struct {
@@ -94,8 +92,8 @@ func (v Entry) AsArray() []string {
 	return a
 }
 
-func (v Entry) AsStream() (Stream, bool) {
-	a, ok := v.value.(Stream)
+func (v Entry) AsStream() (*Stream, bool) {
+	a, ok := v.value.(*Stream)
 	return a, ok
 }
 
@@ -103,30 +101,10 @@ func (s Stream) GetLastId() string {
 	return s.id
 }
 
-func (s Stream) GetLastIdParts() (int, int) {
-	parts := strings.Split(s.id, "-")
-	if len(parts) < 2 {
-		return 0, 0
-	}
-
-	miliseconds, err := strconv.Atoi(parts[0])
-	if err != nil {
-		return 0, 0
-	}
-
-	id, err := strconv.Atoi(parts[1])
-	if err != nil {
-		return 0, 0
-	}
-
-	return miliseconds, id
-}
-
-func CreateStream(id string, data map[string]string) Stream {
+func CreateStream() *Stream {
 	stream := NewStream()
-	stream.Add(id, data)
 
-	return stream
+	return &stream
 }
 
 func NewStream() Stream {
@@ -141,7 +119,7 @@ func (v Entry) GetType() int {
 		return STRING
 	case []string:
 		return ARRAY
-	case Stream:
+	case *Stream:
 		return STREAM
 	default:
 		return UNKNOWN
