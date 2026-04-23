@@ -17,14 +17,18 @@ func (c XrangeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	key := argss[0]
 	start := argss[1]
 	var startMilliseconds, startSeqId int
-	if (start == "-") {
+	if start == "-" {
 		startMilliseconds, startSeqId = 0, 0
 	} else {
 		startMilliseconds, startSeqId = GetStreamIdParts(start)
 	}
-	
+
 	end := argss[2]
-	endtMilliseconds, endSeqId := GetStreamIdParts(end)
+	var endMilliseconds, endSeqId int
+	isEndExist := end != "+"
+	if isEndExist {
+		endMilliseconds, endSeqId = GetStreamIdParts(end)
+	}
 
 	entry, ok := db.Get(key)
 	if !ok {
@@ -39,7 +43,9 @@ func (c XrangeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		entryId := streamEntry.GetId()
 		miliseconds, seqId := GetStreamIdParts(entryId)
 
-		if (miliseconds >= startMilliseconds && seqId >= startSeqId && miliseconds <= endtMilliseconds && seqId <= endSeqId) {
+		if miliseconds >= startMilliseconds && seqId >= startSeqId &&
+			(!isEndExist || (miliseconds <= endMilliseconds && seqId <= endSeqId)) {
+
 			dataMap := streamEntry.GeData()
 			var preparedData []any
 			for key, value := range dataMap {
