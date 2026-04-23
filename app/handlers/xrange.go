@@ -16,7 +16,13 @@ func (c XrangeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	key := argss[0]
 	start := argss[1]
-	startMilliseconds, startSeqId := GetStreamIdParts(start)
+	var startMilliseconds, startSeqId int
+	if (start == "-") {
+		startMilliseconds, startSeqId = 0, 0
+	} else {
+		startMilliseconds, startSeqId = GetStreamIdParts(start)
+	}
+	
 	end := argss[2]
 	endtMilliseconds, endSeqId := GetStreamIdParts(end)
 
