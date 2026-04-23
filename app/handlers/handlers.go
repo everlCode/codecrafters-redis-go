@@ -19,6 +19,7 @@ const (
 	BLPOP   = "BLPOP"
 	TYPE   = "TYPE"
 	XADD   = "XADD"
+	XRANGE   = "XRANGE"
 )
 
 type Command interface {

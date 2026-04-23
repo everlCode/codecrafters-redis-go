@@ -49,7 +49,7 @@ func (c LPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		response.Bulk = v
 	} else {
 		v := value[:count]
-		response = resp.Array(v)
+		response = resp.ArrayString(v)
 	}
 	entry.Set(value[count:])
 

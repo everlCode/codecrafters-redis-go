@@ -77,5 +77,5 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		data = []string{key.Bulk, data[0]}
 	}
 
-	return resp.Array(data)
+	return resp.ArrayString(data)
 }

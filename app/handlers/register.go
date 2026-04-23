@@ -24,6 +24,7 @@ func NewRegister() *Register {
 	register.Add(BLPOP, &BlPopCommand{})
 	register.Add(TYPE, &TypeCommand{})
 	register.Add(XADD, &XaddCommand{})
+	register.Add(XRANGE, &XrangeCommand{})
 
 	return register
 }

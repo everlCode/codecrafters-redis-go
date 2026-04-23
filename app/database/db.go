@@ -25,8 +25,13 @@ type Entry struct {
 }
 
 type Stream struct {
-	data map[string]map[string]string
+	entries []StreamEntry
+	lastId  string
+}
+
+type StreamEntry struct {
 	id   string
+	data map[string]string
 }
 
 type Waiter struct {
@@ -98,7 +103,19 @@ func (v Entry) AsStream() (*Stream, bool) {
 }
 
 func (s Stream) GetLastId() string {
-	return s.id
+	return s.lastId
+}
+
+func (s Stream) GetEntries() []StreamEntry {
+	return s.entries
+}
+
+func (entry StreamEntry) GetId() string {
+	return entry.id
+}
+
+func (entry StreamEntry) GeData() map[string]string {
+	return entry.data
 }
 
 func CreateStream() *Stream {
@@ -109,7 +126,7 @@ func CreateStream() *Stream {
 
 func NewStream() Stream {
 	return Stream{
-		data: make(map[string]map[string]string),
+		entries: []StreamEntry{},
 	}
 }
 
@@ -143,8 +160,11 @@ func (v *Entry) Set(a any) {
 }
 
 func (stream *Stream) Add(id string, data map[string]string) {
-	stream.data[id] = data
-	stream.id = id
+	entry := StreamEntry{}
+	entry.id = id
+	entry.data = data
+	stream.entries = append(stream.entries, entry)
+	stream.lastId = id
 }
 
 func (db *DB) PopWaiter(key string) *Waiter {

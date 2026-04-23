@@ -68,7 +68,7 @@ func (c XaddCommand) validateId(id string, lastId string) (bool, error) {
 		return false, nil
 	}
 
-	lastIdUnixTime, lastIndetificator := GetIdParts(lastId)
+	lastIdUnixTime, lastIndetificator := GetStreamIdParts(lastId)
 	indetificator, err := strconv.Atoi(parts[1])
 	if err != nil {
 		return false, nil
@@ -92,7 +92,7 @@ func (c XaddCommand) validateId(id string, lastId string) (bool, error) {
 }
 
 func (c XaddCommand) generateId(id string, lastId string) string {
-	var parts[]string
+	var parts []string
 	if id == "*" {
 		parts = []string{"*", "*"}
 	} else {
@@ -105,7 +105,7 @@ func (c XaddCommand) generateId(id string, lastId string) string {
 		curTime := time.Now().UnixMilli()
 		parts[0] = strconv.Itoa(int(curTime))
 	}
-	lastTime, lastIndetificator := GetIdParts(lastId)
+	lastTime, lastIndetificator := GetStreamIdParts(lastId)
 	currentTime, _ := strconv.Atoi(parts[0])
 	if parts[1] == "*" {
 		if lastTime == currentTime {
@@ -119,7 +119,7 @@ func (c XaddCommand) generateId(id string, lastId string) string {
 	return str
 }
 
-func GetIdParts(id string) (int, int) {
+func GetStreamIdParts(id string) (int, int) {
 	parts := strings.Split(id, "-")
 	if len(parts) < 2 {
 		return 0, 0

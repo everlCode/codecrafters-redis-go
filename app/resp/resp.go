@@ -3,6 +3,7 @@ package resp
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"net"
 	"strconv"
 	"unicode/utf8"
@@ -157,7 +158,29 @@ func Integer(value int) Value {
 	return Value{Type: INTEGER, Integer: value}
 }
 
-func Array(value []string) Value {
+func Array(value []any) Value {
+	var data []Value = []Value{}
+	for i := 0; i < len(value); i++ {
+		switch v := value[i].(type) {
+		case []any:
+			items, _ := value[i].([]any)
+			data = append(data, Array(items))
+		case string:
+			data = append(data, Value{Type: BULK, Bulk: v})
+		case []byte:
+			data = append(data, Value{Type: BULK, Bulk: string(v)})
+		case int:
+			data = append(data, Value{Type: INTEGER, Integer: v})
+		case Value:
+			data = append(data, v)
+		default:
+			data = append(data, Value{Type: BULK, Bulk: fmt.Sprintf("%v", v)})
+		}
+	}
+	return Value{Type: ARRAY, Array: data}
+}
+
+func ArrayString(value []string) Value {
 	var data []Value = []Value{}
 	for i := 0; i < len(value); i++ {
 		data = append(data, Value{Type: BULK, Bulk: value[i]})

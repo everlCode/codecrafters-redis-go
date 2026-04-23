@@ -78,5 +78,5 @@ func (c LRangeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		data = data[start:end]
 	}
 
-	return resp.Array(data)
+	return resp.ArrayString(data)
 }
