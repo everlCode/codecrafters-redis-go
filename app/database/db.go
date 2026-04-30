@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 )
 
 const (
@@ -106,8 +108,43 @@ func (s Stream) GetLastId() string {
 	return s.lastId
 }
 
-func (s Stream) GetEntries() []StreamEntry {
-	return s.entries
+func (s Stream) GetEntries(params ...string) []StreamEntry {
+	if len(params) == 0 {
+		return s.entries
+	}
+
+	start := params[0]
+	var startMilliseconds, startSeqId int
+	if start == "-" {
+		startMilliseconds, startSeqId = 0, 0
+	} else {
+		startMilliseconds, startSeqId = helpers.GetStreamIdParts(start)
+	}
+
+	var end string
+	if len(params) > 1 {
+		end = params[1]
+	} else {
+		end = "+"
+	}
+	var endMilliseconds, endSeqId int
+	isEndExist := end != "+"
+	if isEndExist {
+		endMilliseconds, endSeqId = helpers.GetStreamIdParts(end)
+	}
+
+	var response []StreamEntry
+	for _, streamEntry := range s.entries {
+		entryId := streamEntry.GetId()
+		miliseconds, seqId := helpers.GetStreamIdParts(entryId)
+
+		if miliseconds >= startMilliseconds && seqId >= startSeqId &&
+			(!isEndExist || (miliseconds <= endMilliseconds && seqId <= endSeqId)) {
+			response = append(response, streamEntry)
+		}
+	}
+
+	return response
 }
 
 func (entry StreamEntry) GetId() string {

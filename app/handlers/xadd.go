@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/codecrafters-io/redis-starter-go/app/database"
+	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
@@ -68,7 +69,7 @@ func (c XaddCommand) validateId(id string, lastId string) (bool, error) {
 		return false, nil
 	}
 
-	lastIdUnixTime, lastIndetificator := GetStreamIdParts(lastId)
+	lastIdUnixTime, lastIndetificator := helpers.GetStreamIdParts(lastId)
 	indetificator, err := strconv.Atoi(parts[1])
 	if err != nil {
 		return false, nil
@@ -105,7 +106,7 @@ func (c XaddCommand) generateId(id string, lastId string) string {
 		curTime := time.Now().UnixMilli()
 		parts[0] = strconv.Itoa(int(curTime))
 	}
-	lastTime, lastIndetificator := GetStreamIdParts(lastId)
+	lastTime, lastIndetificator := helpers.GetStreamIdParts(lastId)
 	currentTime, _ := strconv.Atoi(parts[0])
 	if parts[1] == "*" {
 		if lastTime == currentTime {
@@ -117,23 +118,4 @@ func (c XaddCommand) generateId(id string, lastId string) string {
 	str := strings.Join(parts, "-")
 
 	return str
-}
-
-func GetStreamIdParts(id string) (int, int) {
-	parts := strings.Split(id, "-")
-	if len(parts) < 2 {
-		return 0, 0
-	}
-
-	miliseconds, err := strconv.Atoi(parts[0])
-	if err != nil {
-		return 0, 0
-	}
-
-	indetificator, err := strconv.Atoi(parts[1])
-	if err != nil {
-		return 0, 0
-	}
-
-	return miliseconds, indetificator
 }

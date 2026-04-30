@@ -17,9 +17,10 @@ const (
 	LLEN    = "LLEN"
 	LPOP    = "LPOP"
 	BLPOP   = "BLPOP"
-	TYPE   = "TYPE"
-	XADD   = "XADD"
-	XRANGE   = "XRANGE"
+	TYPE    = "TYPE"
+	XADD    = "XADD"
+	XRANGE  = "XRANGE"
+	XREAD   = "XREAD"
 )
 
 type Command interface {
