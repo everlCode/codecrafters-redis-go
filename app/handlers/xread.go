@@ -14,24 +14,35 @@ func (c XreadCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		return resp.Error("ERR to few args!")
 	}
 
-	key := argss[1]
-	entry, ok := db.Get(key)
-	if !ok {
-		return resp.EmptyArray()
+	pairs := argss[1:]
+	pairsLen := len(pairs)
+	pairsMiddle := pairsLen / 2
+	var streamKeyMap map[string]string = make(map[string]string)
+	for i, v := range pairs {
+		if i + 1 > pairsMiddle {
+			break
+		}
+		streamKeyMap[v] = pairs[i + pairsMiddle]
 	}
-	start := argss[2]
-
-	stream, _ := entry.AsStream()
-	streamEntries := stream.GetEntries(start)
 
 	var response []any
-	var streamEntryData []any = []any{}
-	for _, streamEntry := range streamEntries {
-		streamEntryData = append(streamEntryData, PrepareStreamEntryData(streamEntry))
+	for key, start := range streamKeyMap {
+		entry, ok := db.Get(key)
+		if !ok {
+			return resp.EmptyArray()
+		}
 
+		stream, _ := entry.AsStream()
+		streamEntries := stream.GetEntries(start)
+
+		var streamEntryData []any = []any{}
+		for _, streamEntry := range streamEntries {
+			streamEntryData = append(streamEntryData, PrepareStreamEntryData(streamEntry))
+
+		}
+		streamData := []any{key, streamEntryData}
+		response = append(response, streamData)
 	}
-	streamData := []any{key, streamEntryData}
-	response = append(response, streamData)
-
+	
 	return resp.Array(response)
 }
