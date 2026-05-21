@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/codecrafters-io/redis-starter-go/app/database"
@@ -17,33 +16,25 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
 	}
 
+	var argParser = New()
 	var timeout time.Duration = 0
 	var endDate time.Time
 	if len(args) > 1 {
-		v, err := strconv.ParseFloat(args[1].Bulk, 64)
-		if err != nil {
-			return resp.Value{Type: resp.ERROR, String: err.Error()}
-		}
-		if v != 0 {
-			timeout = time.Duration(v * float64(time.Second))
-			endDate = time.Now().Add(timeout)
-		}
+		timeout = argParser.ParseTimeout(args[1].Bulk)
 	}
-
+	endDate = time.Now().Add(timeout)
 	entry, ok := db.Get(key.Bulk)
 	if ok {
 		var response resp.Value
 		if entry.IsArray() {
 			value := entry.AsArray()
-			if ok {
-				if len(value) > 0 {
-					firstValue := value[0]
-					entry.Set(value[1:])
-					db.Set(key.Bulk, entry)
-					response = resp.Value{
-						Type:  resp.ARRAY,
-						Array: []resp.Value{resp.Value{Type: resp.BULK, Bulk: key.Bulk}, resp.Value{Type: resp.BULK, Bulk: firstValue}},
-					}
+			if len(value) > 0 {
+				firstValue := value[0]
+				entry.Set(value[1:])
+				db.Set(key.Bulk, entry)
+				response = resp.Value{
+					Type:  resp.ARRAY,
+					Array: []resp.Value{resp.Value{Type: resp.BULK, Bulk: key.Bulk}, resp.Value{Type: resp.BULK, Bulk: firstValue}},
 				}
 			}
 		} else {
@@ -56,8 +47,7 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		return response
 	}
 
-	ch := make(chan database.Entry)
-	db.PushWaiter(key.Bulk, &database.Waiter{Chanel: ch, Timeout: endDate})
+	ch := db.PushWaiter(key.Bulk, endDate)
 
 	if timeout == 0 {
 		entry = <-ch

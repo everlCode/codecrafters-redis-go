@@ -213,8 +213,16 @@ func (db *DB) PopWaiter(key string) *Waiter {
 	return waiter
 }
 
-func (db *DB) PushWaiter(key string, w *Waiter) {
+func (db *DB) PushWaiter(key string, time time.Time) chan Entry {
 	db.mx.Lock()
 	defer db.mx.Unlock()
-	db.waiters[key] = append(db.waiters[key], w)
+
+	ch := make(chan Entry)
+	w := Waiter{
+		Timeout: time,
+		Chanel: ch,
+	}
+	db.waiters[key] = append(db.waiters[key], &w)
+
+	return ch
 }
