@@ -27,11 +27,10 @@ func (c XreadCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	var response []any
 	for key, start := range streamKeyMap {
-		entry, ok := db.Get(key)
-		if ok {
-			stream, _ := entry.AsStream()
-			streamEntries := stream.GetEntries(start)
-
+		entry, _ := db.Get(key)
+		stream, _ := entry.AsStream()
+		streamEntries := stream.GetEntries(start)
+		if len(streamEntries) > 0 {
 			var streamEntryData []any = []any{}
 			for _, streamEntry := range streamEntries {
 				streamEntryData = append(streamEntryData, PrepareStreamEntryData(streamEntry))
@@ -55,9 +54,9 @@ func (c XreadCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 					}
 				}
 			}
+		} else {
+			return resp.EmptyArray()
 		}
-
-		return resp.EmptyArray()
 	}
 
 	return resp.Array(response)
@@ -72,7 +71,7 @@ func (c XreadCommand) parseArgs(args []string) map[string]any {
 	}
 	isBlock := strings.ToLower(arguments[0]) == "block"
 	var pairs []string
-	var response map[string]any
+	var response map[string]any = make(map[string]any)
 
 	if isBlock {
 		var argParser = New()
