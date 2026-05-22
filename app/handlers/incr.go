@@ -23,7 +23,10 @@ func (c IncrCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 
 	value := entry.AsString()
-	v, _ := strconv.Atoi(value)
+	v, err := strconv.Atoi(value)
+	if err != nil {
+		return resp.Error("ERR value is not an integer or out of range")
+	}
 	v += 1
 	value = strconv.Itoa(v)
 
