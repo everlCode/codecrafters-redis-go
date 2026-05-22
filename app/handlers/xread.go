@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/codecrafters-io/redis-starter-go/app/database"
+	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
@@ -27,18 +28,9 @@ func (c XreadCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	var response []any
 	for key, start := range streamKeyMap {
-		entry, _ := db.Get(key)
-		stream, _ := entry.AsStream()
-		streamEntries := stream.GetEntries(start)
-		if len(streamEntries) > 0 {
-			var streamEntryData []any = []any{}
-			for _, streamEntry := range streamEntries {
-				streamEntryData = append(streamEntryData, PrepareStreamEntryData(streamEntry))
-
-			}
-			streamData := []any{key, streamEntryData}
-			response = append(response, streamData)
-		} else if isBlock {
+		var entry database.Entry
+		var stream *database.Stream
+		if isBlock {
 			ch := db.PushWaiter(key, endDate)
 
 			if timeout == 0 {
@@ -55,8 +47,18 @@ func (c XreadCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 				}
 			}
 		} else {
-			return resp.EmptyArray()
+			entry, _ = db.Get(key)
 		}
+		stream, _ = entry.AsStream()
+		startvalue := helpers.IncrementStreamId(start)
+		streamEntries := stream.GetEntries(startvalue)
+		var streamEntryData []any = []any{}
+		for _, streamEntry := range streamEntries {
+			streamEntryData = append(streamEntryData, PrepareStreamEntryData(streamEntry))
+
+		}
+		streamData := []any{key, streamEntryData}
+		response = append(response, streamData)
 	}
 
 	return resp.Array(response)
@@ -72,12 +74,14 @@ func (c XreadCommand) parseArgs(args []string) map[string]any {
 	isBlock := strings.ToLower(arguments[0]) == "block"
 	var pairs []string
 	var response map[string]any = make(map[string]any)
+	var timeout time.Duration = 0
+	response["timeout"] = timeout
 
 	if isBlock {
 		var argParser = New()
 		var timeout time.Duration = 0
 		if len(args) > 1 {
-			timeout = argParser.ParseTimeout(arguments[1])
+			timeout = argParser.ParseTimeout(arguments[1], false)
 		}
 		response["timeout"] = timeout
 		pairs = arguments[2:]

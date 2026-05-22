@@ -55,15 +55,8 @@ func (db *DB) Set(key string, value Entry) {
 	if len(db.waiters[key]) > 0 {
 		var waiter *Waiter
 
-		for len(db.waiters[key]) > 0 {
-			w := db.PopWaiter(key)
-
-			if w.Timeout.IsZero() || time.Now().Before(w.Timeout) {
-				waiter = w
-				break
-			}
-		}
-
+		waiter = db.PopWaiter(key)
+	
 		if waiter != nil {
 			go func() {
 				waiter.Chanel <- value
@@ -204,13 +197,20 @@ func (stream *Stream) Add(id string, data map[string]string) {
 	stream.lastId = id
 }
 
+func (db *DB) IsWaiterForKeyExist(key string) bool {
+	_, ok := db.waiters[key]
+
+	return ok
+}
+
 func (db *DB) PopWaiter(key string) *Waiter {
-	waiter := db.waiters[key][0]
-	if len(db.waiters[key]) > 0 {
-		db.waiters[key] = db.waiters[key][1:]
+	for  _,w := range db.waiters[key] {
+		if w.Timeout.IsZero() || time.Now().Before(w.Timeout) {
+			return w
+		}
 	}
 
-	return waiter
+	return nil
 }
 
 func (db *DB) PushWaiter(key string, time time.Time) chan Entry {

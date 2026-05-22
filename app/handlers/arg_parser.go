@@ -16,15 +16,14 @@ func New() *ArgParser {
 	return &ArgParser{}
 }
 
-func (ap ArgParser) ParseTimeout(timeoutValue string) time.Duration {
-	var timeout time.Duration = 0
-
+func (ap ArgParser) ParseTimeout(timeoutValue string, isSeconds bool) time.Duration {
 	v, err := strconv.ParseFloat(timeoutValue, 64)
 	if err != nil || v == 0 {
 		return 0
 	}
+	if isSeconds {
+		return time.Duration(v * float64(time.Second))
+	}
 
-	timeout = time.Duration(v * float64(time.Second))
-
-	return timeout
+	return time.Duration(v) * time.Millisecond
 }

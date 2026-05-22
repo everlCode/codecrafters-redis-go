@@ -20,9 +20,12 @@ func (c BlPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	var timeout time.Duration = 0
 	var endDate time.Time
 	if len(args) > 1 {
-		timeout = argParser.ParseTimeout(args[1].Bulk)
+		timeout = argParser.ParseTimeout(args[1].Bulk, true)
 	}
-	endDate = time.Now().Add(timeout)
+	if timeout > 0 {
+		endDate = time.Now().Add(timeout)
+	}
+	
 	entry, ok := db.Get(key.Bulk)
 	if ok {
 		var response resp.Value

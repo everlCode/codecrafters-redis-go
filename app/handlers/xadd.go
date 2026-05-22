@@ -55,6 +55,17 @@ func (c XaddCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	db.Set(key, entry)
 
+	var waiter *database.Waiter
+	if db.IsWaiterForKeyExist(key) {
+		waiter = db.PopWaiter(key)
+	}
+
+	if waiter != nil {
+		go func() {
+			waiter.Chanel <- entry
+		}()
+	}
+
 	return resp.Bulk(generatedId)
 }
 
