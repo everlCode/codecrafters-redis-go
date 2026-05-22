@@ -90,7 +90,7 @@ func (v Entry) AsString() string {
 func (v Entry) AsInteger() int {
 	a, ok := v.value.(int)
 	if !ok {
-		panic(fmt.Sprintf("value is not string: %T", v.value))
+		panic(fmt.Sprintf("value is not int: %T", v.value))
 	}
 	return a
 }
@@ -194,6 +194,10 @@ func Array(data []string) Entry {
 }
 
 func Integer(data int) Entry {
+	return Entry{value: data}
+}
+
+func String(data string) Entry {
 	return Entry{value: data}
 }
 

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -14,18 +16,19 @@ func (c IncrCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
 	}
 
-	var digit int
 	var entry database.Entry
 	entry, ok := db.Get(key.Bulk)
 	if !ok {
-		digit = 1
-		entry = database.Integer(digit)
+		entry = database.String("0")
 	}
 
-	value := entry.AsInteger()
-	value += 1
+	value := entry.AsString()
+	v, _ := strconv.Atoi(value)
+	v += 1
+	value = strconv.Itoa(v)
+
 	entry.Set(value)
 	db.Set(key.Bulk, entry)
 
-	return resp.Integer(value)
+	return resp.Integer(v)
 }
