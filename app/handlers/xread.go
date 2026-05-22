@@ -32,30 +32,39 @@ func (c XreadCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	for key, start := range streamKeyMap {
 		var entry database.Entry
 		var stream *database.Stream
-		if isBlock {
-			ch := db.PushWaiter(key, endDate)
+		var streamEntriesCountBefore int
 
-			if timeout == 0 {
-				entry = <-ch
-			} else {
-				select {
-				case v := <-ch:
-					entry = v
-				case <-time.After(timeout):
-					return resp.Value{
-						Type:  resp.ARRAY,
-						Array: nil,
-					}
+		entry, _ = db.Get(key)
+		if isBlock {
+			if start == "$" {
+				stream, _ = entry.AsStream()
+				streamEntriesCountBefore = len(stream.GetEntries())
+			}
+			ch := db.PushWaiter(key, endDate)
+			var timeoutCh <-chan time.Time
+			if timeout > 0 {
+				timeoutCh = time.After(timeout)
+			}
+
+			select {
+			case v := <-ch:
+				entry = v
+
+			case <-timeoutCh:
+				return resp.Value{
+					Type:  resp.ARRAY,
+					Array: nil,
 				}
 			}
-		} else {
-			entry, _ = db.Get(key)
 		}
 		stream, _ = entry.AsStream()
 		startvalue := helpers.IncrementStreamId(start)
 		streamEntries := stream.GetEntries(startvalue)
 		var streamEntryData []any = []any{}
-		for _, streamEntry := range streamEntries {
+		for k, streamEntry := range streamEntries {
+			if start == "$" && k < streamEntriesCountBefore {
+				continue
+			}
 			streamEntryData = append(streamEntryData, PrepareStreamEntryData(streamEntry))
 
 		}
