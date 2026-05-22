@@ -24,7 +24,9 @@ func (c XreadCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	timeout := parsedArgs["timeout"].(time.Duration)
 
 	var endDate time.Time
-	endDate = time.Now().Add(timeout)
+	if (timeout > 0) {
+		endDate = time.Now().Add(timeout)
+	}
 
 	var response []any
 	for key, start := range streamKeyMap {
