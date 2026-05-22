@@ -87,6 +87,14 @@ func (v Entry) AsString() string {
 	return a
 }
 
+func (v Entry) AsInteger() int {
+	a, ok := v.value.(int)
+	if !ok {
+		panic(fmt.Sprintf("value is not string: %T", v.value))
+	}
+	return a
+}
+
 func (v Entry) AsArray() []string {
 	a, _ := v.value.([]string)
 	return a
@@ -182,6 +190,10 @@ func (e Entry) IsExpired() bool {
 }
 
 func Array(data []string) Entry {
+	return Entry{value: data}
+}
+
+func Integer(data int) Entry {
 	return Entry{value: data}
 }
 
