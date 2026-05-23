@@ -22,6 +22,7 @@ const (
 	XRANGE  = "XRANGE"
 	XREAD   = "XREAD"
 	INCR   = "INCR"
+	MULTI   = "MULTI"
 )
 
 type Command interface {
