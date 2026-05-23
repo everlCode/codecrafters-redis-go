@@ -5,11 +5,13 @@ import (
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
-type MultiCommand struct {
+type ExecCommand struct {
 }
 
-func (c MultiCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
-	db.SetMulti(true)
+func (c ExecCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+	if !db.IsTransaction() {
+		return resp.Error("ERR EXEC without MULTI")
+	} 
 
 	return resp.SimpleString("OK")
 }
