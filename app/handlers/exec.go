@@ -12,6 +12,7 @@ func (c ExecCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	if !db.IsTransaction() {
 		return resp.Error("ERR EXEC without MULTI")
 	} 
+	db.SetMulti(false)
 
-	return resp.SimpleString("OK")
+	return resp.EmptyArray()
 }
