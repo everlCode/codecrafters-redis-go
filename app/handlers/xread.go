@@ -20,7 +20,8 @@ func (c XreadCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 
 	parsedArgs := c.parseArgs(argss)
 	isBlock := parsedArgs["isBlock"].(bool)
-	streamKeyMap := parsedArgs["pairs"].(map[string]string)
+	streamKeys := parsedArgs["keys"].([]string)
+	starts := parsedArgs["starts"].([]string)
 	timeout := parsedArgs["timeout"].(time.Duration)
 
 	var endDate time.Time
@@ -29,10 +30,12 @@ func (c XreadCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 
 	var response []any
-	for key, start := range streamKeyMap {
+	for i, key := range streamKeys {
 		var entry database.Entry
 		var stream *database.Stream
 		var streamEntriesCountBefore int
+
+		start := starts[i]
 
 		entry, _ = db.Get(key)
 		if isBlock {
@@ -103,14 +106,14 @@ func (c XreadCommand) parseArgs(args []string) map[string]any {
 
 	pairsLen := len(pairs)
 	pairsMiddle := pairsLen / 2
-	var streamKeyMap map[string]string = make(map[string]string)
 	for i, v := range pairs {
 		if i+1 > pairsMiddle {
-			break
+			response["starts"] = v
+		} else {
+			response["keys"] = v
 		}
-		streamKeyMap[v] = pairs[i+pairsMiddle]
+		
 	}
-	response["pairs"] = streamKeyMap
 
 	return response
 }
