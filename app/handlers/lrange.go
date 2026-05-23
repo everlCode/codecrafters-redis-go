@@ -10,7 +10,7 @@ import (
 type LRangeCommand struct {
 }
 
-func (c LRangeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+func (c LRangeCommand) Execute(args []string, db *database.DB) resp.Value {
 	if len(args) < 3 {
 		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
 	}
@@ -18,23 +18,16 @@ func (c LRangeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	startValue := args[1]
 	endValue := args[2]
 
-	if startValue.Type != resp.BULK || endValue.Type != resp.BULK {
-		return resp.Value{
-			Type:  resp.ARRAY,
-			Array: []resp.Value{},
-		}
-	}
-
-	start, err := strconv.Atoi(startValue.Bulk)
+	start, err := strconv.Atoi(startValue)
 	if err != nil {
 		return resp.Value{Type: resp.ERROR, Bulk: err.Error()}
 	}
-	end, err := strconv.Atoi(endValue.Bulk)
+	end, err := strconv.Atoi(endValue)
 	if err != nil {
 		return resp.Value{Type: resp.ERROR, Bulk: err.Error()}
 	}
 
-	entry, ok := db.Get(key.Bulk)
+	entry, ok := db.Get(key)
 	data := entry.AsArray()
 	lenght := len(data)
 

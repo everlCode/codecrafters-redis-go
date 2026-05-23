@@ -8,18 +8,15 @@ import (
 type LpushCommand struct {
 }
 
-func (c LpushCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+func (c LpushCommand) Execute(args []string, db *database.DB) resp.Value {
 	key := args[0]
-	if key.Type != resp.BULK {
-		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
-	}
 	
-	entry, ok := db.Get(key.Bulk)
+	entry, ok := db.Get(key)
 	if !ok {
 		entry = database.Array([]string{})
 	}
 
-	argss := resp.ParseSlice(args[1:])
+	argss := args[1:]
 	for i := range argss {
 		data := entry.AsArray()
 		
@@ -31,7 +28,7 @@ func (c LpushCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	arr := entry.AsArray()
 	lenght := len(arr)
 
-	db.Set(key.Bulk, entry)
+	db.Set(key, entry)
 
 	return resp.Integer(lenght)
 }

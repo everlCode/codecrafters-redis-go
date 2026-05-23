@@ -82,7 +82,11 @@ func handle(conn net.Conn, db *database.DB) {
 			continue
 		}
 
-		args := request.Array[1:]
+		args := resp.ParseSlice(request.Array[1:])
+
+		if db.IsTransaction() {
+			commandQueue := database.NewCommandQueue(handlerName, args)
+		}
 		result := handler.Execute(args, db)
 
 		writer.Write(result)

@@ -8,19 +8,18 @@ import (
 type XrangeCommand struct {
 }
 
-func (c XrangeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
-	argss := resp.ParseSlice(args)
-	if len(argss) < 3 {
+func (c XrangeCommand) Execute(args []string, db *database.DB) resp.Value {
+	if len(args) < 3 {
 		return resp.Error("ERR to few args!")
 	}
 
-	key := argss[0]
+	key := args[0]
 	entry, ok := db.Get(key)
 	if !ok {
 		return resp.EmptyArray()
 	}
-	start := argss[1]
-	end := argss[2]
+	start := args[1]
+	end := args[2]
 
 	stream, _ := entry.AsStream()
 	streamEntries := stream.GetEntries(start, end)

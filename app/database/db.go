@@ -1,11 +1,8 @@
 package database
 
 import (
-	"fmt"
 	"sync"
 	"time"
-
-	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 )
 
 const (
@@ -20,21 +17,7 @@ type DB struct {
 	sets    map[string]Entry
 	waiters map[string][]*Waiter
 	isMulti bool
-}
-
-type Entry struct {
-	value   any
-	Expires int64
-}
-
-type Stream struct {
-	entries []StreamEntry
-	lastId  string
-}
-
-type StreamEntry struct {
-	id   string
-	data map[string]string
+	transactionQueue []*CommandQueue
 }
 
 type Waiter struct {
@@ -88,139 +71,18 @@ func (db *DB) IsTransaction() bool {
 	return db.isMulti
 }
 
-func (v Entry) AsString() string {
-	a, ok := v.value.(string)
-	if !ok {
-		panic(fmt.Sprintf("value is not string: %T", v.value))
-	}
-	return a
+func (db *DB) PushTransactionQueue(command CommandQueue)  {
+	db.transactionQueue = append(db.transactionQueue, &command)
 }
 
-func (v Entry) AsInteger() int {
-	a, ok := v.value.(int)
-	if !ok {
-		panic(fmt.Sprintf("value is not int: %T", v.value))
-	}
-	return a
-}
-
-func (v Entry) AsArray() []string {
-	a, _ := v.value.([]string)
-	return a
-}
-
-func (v Entry) AsStream() (*Stream, bool) {
-	a, ok := v.value.(*Stream)
-	return a, ok
-}
-
-func (s Stream) GetLastId() string {
-	return s.lastId
-}
-
-func (s Stream) GetEntries(params ...string) []StreamEntry {
-	if len(params) == 0 {
-		return s.entries
+func (db *DB) PopTransactionQueue(command CommandQueue) *CommandQueue {
+	if len(db.transactionQueue) > 0 {
+		return db.transactionQueue[0]
 	}
 
-	start := params[0]
-	var startMilliseconds, startSeqId int
-	if start == "-" {
-		startMilliseconds, startSeqId = 0, 0
-	} else {
-		startMilliseconds, startSeqId = helpers.GetStreamIdParts(start)
-	}
-
-	var end string
-	if len(params) > 1 {
-		end = params[1]
-	} else {
-		end = "+"
-	}
-	var endMilliseconds, endSeqId int
-	isEndExist := end != "+"
-	if isEndExist {
-		endMilliseconds, endSeqId = helpers.GetStreamIdParts(end)
-	}
-
-	var response []StreamEntry
-	for _, streamEntry := range s.entries {
-		entryId := streamEntry.GetId()
-		miliseconds, seqId := helpers.GetStreamIdParts(entryId)
-
-		if miliseconds >= startMilliseconds && seqId >= startSeqId &&
-			(!isEndExist || (miliseconds <= endMilliseconds && seqId <= endSeqId)) {
-			response = append(response, streamEntry)
-		}
-	}
-
-	return response
+	return nil
 }
 
-func (entry StreamEntry) GetId() string {
-	return entry.id
-}
-
-func (entry StreamEntry) GeData() map[string]string {
-	return entry.data
-}
-
-func CreateStream() *Stream {
-	stream := NewStream()
-
-	return &stream
-}
-
-func NewStream() Stream {
-	return Stream{
-		entries: []StreamEntry{},
-	}
-}
-
-func (v Entry) GetType() int {
-	switch v.value.(type) {
-	case string:
-		return STRING
-	case []string:
-		return ARRAY
-	case *Stream:
-		return STREAM
-	default:
-		return UNKNOWN
-	}
-}
-
-func (e Entry) IsArray() bool {
-	return e.GetType() == ARRAY
-}
-
-func (e Entry) IsExpired() bool {
-	return e.Expires != 0 && e.Expires < time.Now().UnixMilli()
-}
-
-func Array(data []string) Entry {
-	return Entry{value: data}
-}
-
-func Integer(data int) Entry {
-	return Entry{value: data}
-}
-
-func String(data string) Entry {
-	return Entry{value: data}
-}
-
-func (v *Entry) Set(a any) {
-	v.value = a
-}
-
-func (stream *Stream) Add(id string, data map[string]string) {
-	entry := StreamEntry{}
-	entry.id = id
-	entry.data = data
-	stream.entries = append(stream.entries, entry)
-	stream.lastId = id
-}
 
 func (db *DB) IsWaiterForKeyExist(key string) bool {
 	_, ok := db.waiters[key]
@@ -250,4 +112,16 @@ func (db *DB) PushWaiter(key string, time time.Time) chan Entry {
 	db.waiters[key] = append(db.waiters[key], &w)
 
 	return ch
+}
+
+func Array(data []string) Entry {
+	return Entry{value: data}
+}
+
+func Integer(data int) Entry {
+	return Entry{value: data}
+}
+
+func String(data string) Entry {
+	return Entry{value: data}
 }

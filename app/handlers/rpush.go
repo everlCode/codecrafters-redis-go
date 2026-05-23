@@ -8,27 +8,23 @@ import (
 type RpushCommand struct {
 }
 
-func (c RpushCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+func (c RpushCommand) Execute(args []string, db *database.DB) resp.Value {
 	key := args[0]
-	if key.Type != resp.BULK {
-		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
-	}
 
 	arg := args[1:]
-	entry, ok := db.Get(key.Bulk)
+	entry, ok := db.Get(key)
 	var value []string
 	if !ok {
-		entry = database.Array(resp.ParseSlice(arg))
+		entry = database.Array(arg)
 	} else {
 		value := entry.AsArray()
-		args := resp.ParseSlice(arg)
 		entry.Set(append(value[:], args[:]...))
 	}
 
 	value = entry.AsArray()
 	length := len(value)
 
-	db.Set(key.Bulk, entry)
+	db.Set(key, entry)
 
 	return resp.Integer(length)
 }

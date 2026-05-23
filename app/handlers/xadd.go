@@ -14,15 +14,14 @@ import (
 type XaddCommand struct {
 }
 
-func (c XaddCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
-	argss := resp.ParseSlice(args)
-	if len(argss) < 4 {
+func (c XaddCommand) Execute(args []string, db *database.DB) resp.Value {
+	if len(args) < 4 {
 		return resp.Error("ERR to few args!")
 	}
 
-	key := argss[0]
-	id := argss[1]
-	data := argss[2:]
+	key := args[0]
+	id := args[1]
+	data := args[2:]
 
 	streamData := make(map[string]string)
 	for i := 0; i < len(data); i++ {

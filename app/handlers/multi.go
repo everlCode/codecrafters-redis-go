@@ -8,7 +8,7 @@ import (
 type MultiCommand struct {
 }
 
-func (c MultiCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+func (c MultiCommand) Execute(args []string, db *database.DB) resp.Value {
 	db.SetMulti(true)
 
 	return resp.SimpleString("OK")

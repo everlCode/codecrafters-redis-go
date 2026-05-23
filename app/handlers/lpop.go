@@ -10,26 +10,20 @@ import (
 type LPopCommand struct {
 }
 
-func (c LPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+func (c LPopCommand) Execute(args []string, db *database.DB) resp.Value {
 	key := args[0]
-	if key.Type != resp.BULK {
-		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
-	}
 
 	var count int = 1
 	if len(args) > 1 {
 		v := args[1]
-		if v.Type != resp.BULK {
-			return resp.Value{Type: resp.ERROR}
-		}
-		c, err := strconv.Atoi(v.Bulk)
+		c, err := strconv.Atoi(v)
 		count = c
 		if err != nil {
 			return resp.Value{Type: resp.ERROR}
 		}
 	}
 
-	entry, ok := db.Get(key.Bulk)
+	entry, ok := db.Get(key)
 	var response resp.Value
 	if !ok || !entry.IsArray() {
 		return resp.Value{
@@ -53,7 +47,7 @@ func (c LPopCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	}
 	entry.Set(value[count:])
 
-	db.Set(key.Bulk, entry)
+	db.Set(key, entry)
 
 	return response
 }

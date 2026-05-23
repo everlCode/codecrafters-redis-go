@@ -10,14 +10,11 @@ import (
 type IncrCommand struct {
 }
 
-func (c IncrCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+func (c IncrCommand) Execute(args []string, db *database.DB) resp.Value {
 	key := args[0]
-	if key.Type != resp.BULK {
-		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
-	}
 
 	var entry database.Entry
-	entry, ok := db.Get(key.Bulk)
+	entry, ok := db.Get(key)
 	if !ok {
 		entry = database.String("0")
 	}
@@ -31,7 +28,7 @@ func (c IncrCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	value = strconv.Itoa(v)
 
 	entry.Set(value)
-	db.Set(key.Bulk, entry)
+	db.Set(key, entry)
 
 	return resp.Integer(v)
 }

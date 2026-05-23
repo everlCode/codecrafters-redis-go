@@ -8,13 +8,10 @@ import (
 type LLenCommand struct {
 }
 
-func (c LLenCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+func (c LLenCommand) Execute(args []string, db *database.DB) resp.Value {
 	key := args[0]
-	if key.Type != resp.BULK {
-		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
-	}
 
-	value, ok := db.Get(key.Bulk)
+	value, ok := db.Get(key)
 	if !ok || !value.IsArray() {
 		return resp.Integer(0)
 	}

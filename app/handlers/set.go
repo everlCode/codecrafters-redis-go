@@ -12,7 +12,7 @@ import (
 type SetCommand struct {
 }
 
-func (c SetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+func (c SetCommand) Execute(args []string, db *database.DB) resp.Value {
 	if len(args) < 2 {
 		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
 	}
@@ -20,12 +20,12 @@ func (c SetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 	key := args[0]
 	value := args[1]
 	var entry database.Entry
-	entry.Set(value.Bulk)
+	entry.Set(value)
 
 	if len(args) > 3 {
 		commnadOption := args[2]
-		if strings.ToLower(commnadOption.Bulk) == "px" {
-			px, err := strconv.ParseInt(args[3].Bulk, 10, 64)
+		if strings.ToLower(commnadOption) == "px" {
+			px, err := strconv.ParseInt(args[3], 10, 64)
 			if err != nil {
 				return resp.Value{Type: resp.ERROR, String: "Invalid argument"}
 			}
@@ -33,7 +33,7 @@ func (c SetCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
 		}
 	}
 
-	db.Set(key.Bulk, entry)
+	db.Set(key, entry)
 
 	return resp.SimpleString("OK")
 }

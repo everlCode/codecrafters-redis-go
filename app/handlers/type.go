@@ -8,13 +8,10 @@ import (
 type TypeCommand struct {
 }
 
-func (c TypeCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
+func (c TypeCommand) Execute(args []string, db *database.DB) resp.Value {
 	key := args[0]
-	if key.Type != resp.BULK {
-		return resp.Value{Type: resp.ERROR, String: "Key should be string!"}
-	}
 
-	entry, ok := db.Get(key.Bulk)
+	entry, ok := db.Get(key)
 	if !ok {
 		return resp.SimpleString("none")
 	}

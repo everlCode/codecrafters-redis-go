@@ -27,5 +27,5 @@ const (
 )
 
 type Command interface {
-	Execute([]resp.Value, *database.DB) resp.Value
+	Execute([]string, *database.DB) resp.Value
 }

@@ -12,13 +12,12 @@ import (
 type XreadCommand struct {
 }
 
-func (c XreadCommand) Execute(args []resp.Value, db *database.DB) resp.Value {
-	argss := resp.ParseSlice(args)
-	if len(argss) < 3 {
+func (c XreadCommand) Execute(args []string, db *database.DB) resp.Value {
+	if len(args) < 3 {
 		return resp.Error("ERR to few args!")
 	}
 
-	parsedArgs := c.parseArgs(argss)
+	parsedArgs := c.parseArgs(args)
 	isBlock := parsedArgs["isBlock"].(bool)
 	streamKeys := parsedArgs["keys"].([]string)
 	starts := parsedArgs["starts"].([]string)
