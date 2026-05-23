@@ -106,14 +106,19 @@ func (c XreadCommand) parseArgs(args []string) map[string]any {
 
 	pairsLen := len(pairs)
 	pairsMiddle := pairsLen / 2
+	
+	var starts []string
+	var keys []string
 	for i, v := range pairs {
 		if i+1 > pairsMiddle {
-			response["starts"] = v
+			starts = append(starts, v)
 		} else {
-			response["keys"] = v
+			keys = append(keys, v)
 		}
 		
 	}
+	response["keys"] = keys
+	response["starts"] = starts
 
 	return response
 }
