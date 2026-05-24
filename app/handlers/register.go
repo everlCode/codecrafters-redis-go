@@ -27,6 +27,7 @@ func NewRegister() *Register {
 	register.Add(XRANGE, &XrangeCommand{})
 	register.Add(XREAD, &XreadCommand{})
 	register.Add(INCR, &IncrCommand{})
+	register.Add(INFO, &InfoCommand{})
 
 	return register
 }
