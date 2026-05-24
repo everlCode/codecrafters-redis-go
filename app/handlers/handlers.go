@@ -23,6 +23,7 @@ const (
 	XREAD   = "XREAD"
 	INCR   = "INCR"
 	INFO   = "INFO"
+	REPLCONF   = "REPLCONF"
 )
 
 type Command interface {

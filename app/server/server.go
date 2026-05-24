@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"net"
@@ -63,7 +64,7 @@ func (s *Server) Start() net.Listener {
 
 	listener, err := net.Listen("tcp", "0.0.0.0:" + s.Port)
 	if err != nil {
-		fmt.Println("Failed to bind to port 6379")
+		fmt.Println("Failed to bind to port " + s.Port)
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -74,7 +75,33 @@ func (s *Server) Start() net.Listener {
 			panic(err)
 		}
 		
-		conn.Write(resp.Array([]any{"PING"}).Marshal())
+		parser := resp.New(conn)
+		_, err2 := conn.Write(resp.Array([]any{"PING"}).Marshal())
+		if err2 != nil {
+			panic(err)
+		}
+		parser.Read()
+
+		_, err3 := conn.Write(resp.ArrayString([]string{"REPLCONF", "listening-port", s.Port}).Marshal())
+		if err3 != nil {
+			panic(err)
+		}
+		
+		firstRequest, _ := parser.Read()
+		if !firstRequest.IsOk() {
+			panic(errors.New("Replica start error"))
+		}
+		
+		_, err4 := conn.Write(resp.ArrayString([]string{"REPLCONF", "capa", "psync2"}).Marshal())
+		if err4 != nil {
+			panic(err)
+		}
+
+		secondRequest, _ := parser.Read()
+		if !secondRequest.IsOk() {
+			panic(errors.New("Replica start error"))
+		}
+		
 	}
 
 	return listener

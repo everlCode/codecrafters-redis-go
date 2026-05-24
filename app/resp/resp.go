@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -36,6 +37,14 @@ func New(conn net.Conn) *Parser {
 	}
 }
 
+func (v Value) IsOk() bool {
+	if v.Type != STRING {
+		return false;
+	}
+
+	return strings.ToLower(v.String) == "ok"
+}
+
 func (p *Parser) Read() (Value, error) {
 	_type, err := p.reader.ReadByte()
 	if err != nil {
@@ -47,6 +56,8 @@ func (p *Parser) Read() (Value, error) {
 		return p.ReadArray()
 	case BULK:
 		return p.ReadBulk()
+	case STRING:
+		return p.ReadString()
 	default:
 		return Value{}, errors.New("Неизвестный тип")
 	}
@@ -100,6 +111,19 @@ func (p *Parser) ReadBulk() (Value, error) {
 	v := Value{
 		Type: BULK,
 		Bulk: str,
+	}
+
+	return v, nil
+}
+
+func (p *Parser) ReadString() (Value, error) {
+	bytes, _, _ := p.reader.ReadLine()
+
+	str := string(bytes)
+
+	v := Value{
+		Type: STRING,
+		String: str,
 	}
 
 	return v, nil

@@ -28,6 +28,7 @@ func NewRegister() *Register {
 	register.Add(XREAD, &XreadCommand{})
 	register.Add(INCR, &IncrCommand{})
 	register.Add(INFO, &InfoCommand{})
+	register.Add(REPLCONF, &ReplconfCommand{})
 
 	return register
 }
