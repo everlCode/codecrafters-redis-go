@@ -80,7 +80,6 @@ func handle(conn net.Conn, db *database.DB) {
 func Dispatch(args []string, db *database.DB, client *clients.Client) resp.Value {
 	register := handlers.NewRegister()
 	handlerName := strings.ToUpper(args[0])
-	args = args[1:]
 
 	switch handlerName {
 	case "MULTI":
@@ -119,7 +118,7 @@ func Dispatch(args []string, db *database.DB, client *clients.Client) resp.Value
 
 			result = resp.SimpleString("QUEUED")
 		} else {
-			result = handler.Execute(args, db, client)
+			result = handler.Execute(args[1:], db, client)
 		}
 
 		return result
