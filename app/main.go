@@ -20,16 +20,8 @@ var _ = os.Exit
 func main() {
 	db := database.New()
 	server := server.New(db)
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
-	fmt.Println("Logs from your program will appear here!")
-
-	listener, err := net.Listen("tcp", "0.0.0.0:" + server.Port)
-	if err != nil {
-		fmt.Println("Failed to bind to port 6379")
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
+	listener := server.Start()
+	
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
