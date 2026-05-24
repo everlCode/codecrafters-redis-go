@@ -160,6 +160,10 @@ func Integer(value int) Value {
 
 func Array(value []any) Value {
 	var data []Value = []Value{}
+
+	if len(value) == 0 {
+		return EmptyArray()
+	}
 	for i := 0; i < len(value); i++ {
 		switch v := value[i].(type) {
 		case []any:
@@ -177,6 +181,7 @@ func Array(value []any) Value {
 			data = append(data, Value{Type: BULK, Bulk: fmt.Sprintf("%v", v)})
 		}
 	}
+
 	return Value{Type: ARRAY, Array: data}
 }
 

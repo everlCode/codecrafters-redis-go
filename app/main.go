@@ -80,7 +80,6 @@ func handle(conn net.Conn, db *database.DB) {
 func Dispatch(args []string, db *database.DB, client *clients.Client) resp.Value {
 	register := handlers.NewRegister()
 	handlerName := strings.ToUpper(args[0])
-	args = args[1:]
 
 	if handlerName == handlers.MULTI {
 		client.StartTransactions()
@@ -90,13 +89,14 @@ func Dispatch(args []string, db *database.DB, client *clients.Client) resp.Value
 	if handlerName == handlers.EXEC {
 		if !client.IsTransaction() {
 			return resp.Error("ERR EXEC without MULTI")
-		} 
-		for _, c := range client.GetCommandQueue() {
-			Dispatch(c.Args, db, client)
 		}
 		client.EndTransactions()
+		var execResp []any
+		for _, c := range client.GetCommandQueue() {
+			execResp = append(execResp, Dispatch(c.Args, db, client))
+		}
 
-		return resp.EmptyArray()
+		return resp.Array(execResp)
 	}
 
 	handler, err := register.Get(handlerName)
@@ -112,7 +112,7 @@ func Dispatch(args []string, db *database.DB, client *clients.Client) resp.Value
 
 		result = resp.SimpleString("QUEUED")
 	} else {
-		result = handler.Execute(args, db)
+		result = handler.Execute(args[1:], db)
 	}
 
 	return result
