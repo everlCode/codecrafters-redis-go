@@ -28,3 +28,7 @@ func (c Client) GetCommandQueue() []CommandQueue {
 func (c *Client) PushCommandQueue(v CommandQueue) {
 	c.txQueue = append(c.txQueue, v)
 }
+
+func (c Client) ClearCommandQueue() {
+	c.txQueue = []CommandQueue{}
+}

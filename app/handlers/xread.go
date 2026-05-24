@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
@@ -12,7 +13,7 @@ import (
 type XreadCommand struct {
 }
 
-func (c XreadCommand) Execute(args []string, db *database.DB) resp.Value {
+func (c XreadCommand) Execute(args []string, db *database.DB, client *clients.Client) resp.Value {
 	if len(args) < 3 {
 		return resp.Error("ERR to few args!")
 	}

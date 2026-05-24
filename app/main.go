@@ -80,13 +80,13 @@ func handle(conn net.Conn, db *database.DB) {
 func Dispatch(args []string, db *database.DB, client *clients.Client) resp.Value {
 	register := handlers.NewRegister()
 	handlerName := strings.ToUpper(args[0])
+	args = args[1:]
 
-	if handlerName == handlers.MULTI {
+	switch handlerName {
+	case "MULTI":
 		client.StartTransactions()
 		return resp.SimpleString("OK")
-	}
-
-	if handlerName == handlers.EXEC {
+	case "EXEC":
 		if !client.IsTransaction() {
 			return resp.Error("ERR EXEC without MULTI")
 		}
@@ -97,23 +97,31 @@ func Dispatch(args []string, db *database.DB, client *clients.Client) resp.Value
 		}
 
 		return resp.Array(execResp)
+	case "DISCARD":
+		if !client.IsTransaction() {
+			return resp.Error("ERR DISCARD without MULTI")
+		}
+		client.ClearCommandQueue()
+		client.EndTransactions()
+
+		return resp.SimpleString("OK")
+	default:
+		handler, err := register.Get(handlerName)
+
+		if err != nil {
+			return resp.Error(fmt.Sprintf("ERR unknown command '%s'", handlerName))
+		}
+
+		var result resp.Value
+		if client.IsTransaction() {
+			commandQueue := clients.NewCommandQueue(handlerName, args)
+			client.PushCommandQueue(commandQueue)
+
+			result = resp.SimpleString("QUEUED")
+		} else {
+			result = handler.Execute(args, db, client)
+		}
+
+		return result
 	}
-
-	handler, err := register.Get(handlerName)
-
-	if err != nil {
-		return resp.Error(fmt.Sprintf("ERR unknown command '%s'", handlerName))
-	}
-
-	var result resp.Value
-	if client.IsTransaction() {
-		commandQueue := clients.NewCommandQueue(handlerName, args)
-		client.PushCommandQueue(commandQueue)
-
-		result = resp.SimpleString("QUEUED")
-	} else {
-		result = handler.Execute(args[1:], db)
-	}
-
-	return result
 }

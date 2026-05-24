@@ -3,6 +3,7 @@ package handlers
 import (
 	"strconv"
 
+	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -10,7 +11,7 @@ import (
 type LPopCommand struct {
 }
 
-func (c LPopCommand) Execute(args []string, db *database.DB) resp.Value {
+func (c LPopCommand) Execute(args []string, db *database.DB, client *clients.Client) resp.Value {
 	key := args[0]
 
 	var count int = 1

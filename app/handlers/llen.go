@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -8,7 +9,7 @@ import (
 type LLenCommand struct {
 }
 
-func (c LLenCommand) Execute(args []string, db *database.DB) resp.Value {
+func (c LLenCommand) Execute(args []string, db *database.DB, client *clients.Client) resp.Value {
 	key := args[0]
 
 	value, ok := db.Get(key)

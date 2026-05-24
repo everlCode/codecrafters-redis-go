@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
@@ -14,7 +15,7 @@ import (
 type XaddCommand struct {
 }
 
-func (c XaddCommand) Execute(args []string, db *database.DB) resp.Value {
+func (c XaddCommand) Execute(args []string, db *database.DB, client *clients.Client) resp.Value {
 	if len(args) < 4 {
 		return resp.Error("ERR to few args!")
 	}

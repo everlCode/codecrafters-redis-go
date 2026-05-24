@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -8,7 +9,7 @@ import (
 type RpushCommand struct {
 }
 
-func (c RpushCommand) Execute(args []string, db *database.DB) resp.Value {
+func (c RpushCommand) Execute(args []string, db *database.DB, client *clients.Client) resp.Value {
 	key := args[0]
 
 	args = args[1:]
