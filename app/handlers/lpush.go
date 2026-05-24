@@ -1,15 +1,16 @@
 package handlers
 
 import (
-	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
+	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
 
 type LpushCommand struct {
 }
 
-func (c LpushCommand) Execute(args []string, db *database.DB, client *clients.Client) resp.Value {
+func (c LpushCommand) Execute(args []string, server *server.Server) resp.Value {
+	db := server.GetDB()
 	key := args[0]
 	
 	entry, ok := db.Get(key)

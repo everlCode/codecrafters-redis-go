@@ -3,15 +3,15 @@ package handlers
 import (
 	"strconv"
 
-	"github.com/codecrafters-io/redis-starter-go/app/clients"
-	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
+	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
 
 type LRangeCommand struct {
 }
 
-func (c LRangeCommand) Execute(args []string, db *database.DB, client *clients.Client) resp.Value {
+func (c LRangeCommand) Execute(args []string, server *server.Server) resp.Value {
+	db := server.GetDB()
 	if len(args) < 3 {
 		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
 	}

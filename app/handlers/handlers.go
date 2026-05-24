@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"github.com/codecrafters-io/redis-starter-go/app/clients"
-	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
+	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
 
 const (
@@ -27,5 +26,8 @@ const (
 )
 
 type Command interface {
-	Execute(args []string, db *database.DB, client *clients.Client) resp.Value
+	Execute(
+		args []string,
+		server *server.Server,
+	) resp.Value
 }

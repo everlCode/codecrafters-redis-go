@@ -3,15 +3,16 @@ package handlers
 import (
 	"strconv"
 
-	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
+	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
 
 type IncrCommand struct {
 }
 
-func (c IncrCommand) Execute(args []string, db *database.DB, client *clients.Client) resp.Value {
+func (c IncrCommand) Execute(args []string, server *server.Server) resp.Value {
+	db := server.GetDB()
 	key := args[0]
 
 	var entry database.Entry

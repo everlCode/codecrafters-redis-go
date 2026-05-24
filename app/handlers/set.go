@@ -5,15 +5,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
+	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
 
 type SetCommand struct {
 }
 
-func (c SetCommand) Execute(args []string, db *database.DB, client *clients.Client) resp.Value {
+func (c SetCommand) Execute(args []string, server *server.Server) resp.Value {
+	db := server.GetDB()
 	if len(args) < 2 {
 		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
 	}
