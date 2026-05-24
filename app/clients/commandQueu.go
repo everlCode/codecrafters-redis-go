@@ -1,4 +1,4 @@
-package database
+package clients
 
 type CommandQueue struct {
 	Name string

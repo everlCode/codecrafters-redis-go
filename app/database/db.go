@@ -16,8 +16,6 @@ type DB struct {
 	mx      sync.Mutex
 	sets    map[string]Entry
 	waiters map[string][]*Waiter
-	isMulti bool
-	transactionQueue []*CommandQueue
 }
 
 type Waiter struct {
@@ -62,27 +60,6 @@ func (db *DB) Get(key string) (Entry, bool) {
 
 	return value, ok
 }
-
-func (db *DB) SetMulti(value bool) {
-	db.isMulti = value
-}
-
-func (db *DB) IsTransaction() bool {
-	return db.isMulti
-}
-
-func (db *DB) PushTransactionQueue(command CommandQueue)  {
-	db.transactionQueue = append(db.transactionQueue, &command)
-}
-
-func (db *DB) PopTransactionQueue(command CommandQueue) *CommandQueue {
-	if len(db.transactionQueue) > 0 {
-		return db.transactionQueue[0]
-	}
-
-	return nil
-}
-
 
 func (db *DB) IsWaiterForKeyExist(key string) bool {
 	_, ok := db.waiters[key]

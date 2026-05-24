@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/handlers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
@@ -44,6 +45,7 @@ func handle(conn net.Conn, db *database.DB) {
 
 	parser := resp.New(conn)
 	writer := NewWriter(conn)
+	client := clients.New()
 
 	for {
 		request, err := parser.Read()
@@ -69,26 +71,49 @@ func handle(conn net.Conn, db *database.DB) {
 
 			continue
 		}
-
-		register := handlers.NewRegister()
-		handlerName := strings.ToUpper(request.Array[0].Bulk)
-
-		handler, err := register.Get(handlerName)
-
-		if err != nil {
-			writer.Write(resp.Error(
-				fmt.Sprintf("ERR unknown command '%s'", handlerName),
-			))
-			continue
-		}
-
-		args := resp.ParseSlice(request.Array[1:])
-
-		if db.IsTransaction() {
-			commandQueue := database.NewCommandQueue(handlerName, args)
-		}
-		result := handler.Execute(args, db)
-
+		args := resp.ParseSlice(request.Array)
+		result := Dispatch(args, db, client)
 		writer.Write(result)
 	}
+}
+
+func Dispatch(args []string, db *database.DB, client *clients.Client) resp.Value {
+	register := handlers.NewRegister()
+	handlerName := strings.ToUpper(args[0])
+	args = args[1:]
+
+	if handlerName == handlers.MULTI {
+		client.StartTransactions()
+		return resp.SimpleString("OK")
+	}
+
+	if handlerName == handlers.EXEC {
+		if !client.IsTransaction() {
+			return resp.Error("ERR EXEC without MULTI")
+		} 
+		for _, c := range client.GetCommandQueue() {
+			Dispatch(c.Args, db, client)
+		}
+		client.EndTransactions()
+
+		return resp.EmptyArray()
+	}
+
+	handler, err := register.Get(handlerName)
+
+	if err != nil {
+		return resp.Error(fmt.Sprintf("ERR unknown command '%s'", handlerName))
+	}
+
+	var result resp.Value
+	if client.IsTransaction() {
+		commandQueue := clients.NewCommandQueue(handlerName, args)
+		client.PushCommandQueue(commandQueue)
+
+		result = resp.SimpleString("QUEUED")
+	} else {
+		result = handler.Execute(args, db)
+	}
+
+	return result
 }
