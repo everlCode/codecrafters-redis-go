@@ -11,5 +11,5 @@ type PsyncCommand struct {
 func (c PsyncCommand) Execute(args []string, server *server.Server) resp.Value {
 
 
-	return resp.SimpleString("ID")
+	return resp.SimpleString("OK")
 }

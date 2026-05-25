@@ -29,7 +29,7 @@ func NewRegister() *Register {
 	register.Add(INCR, &IncrCommand{})
 	register.Add(INFO, &InfoCommand{})
 	register.Add(REPLCONF, &ReplconfCommand{})
-	register.Add(REPLCONF, &PsyncCommand{})
+	register.Add(PSYNC, &PsyncCommand{})
 
 	return register
 }
