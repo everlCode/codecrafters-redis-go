@@ -70,41 +70,49 @@ func (s *Server) Start() net.Listener {
 	}
 
 	if s.Role == SLAVE_ROLE {
-		conn, err := net.Dial("tcp", s.MasterHost + ":" + s.MasterPort)
-		if err != nil {
-			panic(err)
-		}
-		
-		parser := resp.New(conn)
-		_, err2 := conn.Write(resp.Array([]any{"PING"}).Marshal())
-		if err2 != nil {
-			panic(err)
-		}
-		parser.Read()
-
-		_, err3 := conn.Write(resp.ArrayString([]string{"REPLCONF", "listening-port", s.Port}).Marshal())
-		if err3 != nil {
-			panic(err)
-		}
-		
-		firstRequest, _ := parser.Read()
-		if !firstRequest.IsOk() {
-			panic(errors.New("Replica start error"))
-		}
-		
-		_, err4 := conn.Write(resp.ArrayString([]string{"REPLCONF", "capa", "psync2"}).Marshal())
-		if err4 != nil {
-			panic(err)
-		}
-
-		secondRequest, _ := parser.Read()
-		if !secondRequest.IsOk() {
-			panic(errors.New("Replica start error"))
-		}
-		
+		s.initReplica()
 	}
 
 	return listener
+}
+
+func (s *Server) initReplica() {
+	conn, err := net.Dial("tcp", s.MasterHost + ":" + s.MasterPort)
+	if err != nil {
+		panic(err)
+	}
+
+	s.sendRequest(conn, "PING")
+	
+	firstRequest := s.sendRequest(conn, "REPLCONF", "listening-port", s.Port)
+	if !firstRequest.IsOk() {
+		panic(errors.New("Replica start error"))
+	}
+	
+	secondRequest := s.sendRequest(conn, "REPLCONF", "capa", "psync2")
+	if !secondRequest.IsOk() {
+		panic(errors.New("Replica start error"))
+	}
+
+	s.sendRequest(conn, "PSYNC", "?", "-1")
+}
+
+func (s *Server) sendRequest(conn net.Conn, arguments ...string) resp.Value {
+	parser := resp.New(conn)
+	values := make([]any, len(arguments))
+
+	for i, arg := range arguments {
+		values[i] = arg
+	}
+
+	_, err := conn.Write(resp.Array(values).Marshal())
+	if err != nil {
+		panic(err)
+	}
+
+	response, err := parser.Read()
+	
+	return response
 }
 
 func (s *Server) GetDB() *database.DB {

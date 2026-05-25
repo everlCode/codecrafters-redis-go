@@ -10,7 +10,7 @@ import (
 type BlPopCommand struct {
 }
 
-func (c BlPopCommand) Execute(args []string,server *server.Server) resp.Value {
+func (c BlPopCommand) Execute(args []string, server *server.Server) resp.Value {
 	db := server.GetDB()
 	key := args[0]
 

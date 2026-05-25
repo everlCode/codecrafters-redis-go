@@ -24,6 +24,7 @@ const (
 	INCR   = "INCR"
 	INFO   = "INFO"
 	REPLCONF   = "REPLCONF"
+	PSYNC   = "PSYNC"
 )
 
 type Command interface {
