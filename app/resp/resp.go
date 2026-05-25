@@ -25,6 +25,7 @@ type Value struct {
 	String  string
 	Bulk    string
 	Array   []Value
+	Bytes []byte
 }
 
 type Parser struct {
@@ -221,6 +222,13 @@ func EmptyArray() Value {
 	return Value{
 		Type:  ARRAY,
 		Array: []Value{},
+	}
+}
+
+func File(data []byte) Value {
+	return Value{
+		Type: BULK,
+		Bytes: data,
 	}
 }
 

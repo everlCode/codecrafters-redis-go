@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 	"github.com/codecrafters-io/redis-starter-go/app/server"
@@ -9,7 +10,7 @@ import (
 type XrangeCommand struct {
 }
 
-func (c XrangeCommand) Execute(args []string, server *server.Server) resp.Value {
+func (c XrangeCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
 	db := server.GetDB()
 	if len(args) < 3 {
 		return resp.Error("ERR to few args!")

@@ -51,7 +51,7 @@ func Dispatch(args []string, server *server.Server, client *clients.Client) resp
 
 			result = resp.SimpleString("QUEUED")
 		} else {
-			result = handler.Execute(args[1:], server)
+			result = handler.Execute(args[1:], server, client)
 		}
 
 		return result

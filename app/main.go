@@ -37,7 +37,7 @@ func handle(conn net.Conn, server *server.Server) {
 
 	parser := resp.New(conn)
 	writer := NewWriter(conn)
-	client := clients.New()
+	client := clients.New(conn)
 
 	for {
 		request, err := parser.Read()
@@ -65,7 +65,12 @@ func handle(conn net.Conn, server *server.Server) {
 		}
 		args := resp.ParseSlice(request.Array)
 		result := dispatcher.Dispatch(args, server, client)
+		
 		writer.Write(result)
+		if client.IsReplica() && !client.RDBSent {
+			server.SendRdb(client.GetConnection())
+			client.RDBSent = true
+		}
 	}
 }
 

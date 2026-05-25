@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/base64"
 	"errors"
 	"flag"
 	"fmt"
@@ -22,6 +23,7 @@ type Server struct {
 	config *Config
 	Port string
 	Role string
+	Replicas []Replica
 	MasterHost string
 	MasterPort string
 	MasterReplyId string
@@ -81,23 +83,31 @@ func (s *Server) initReplica() {
 	if err != nil {
 		panic(err)
 	}
-
-	s.sendRequest(conn, "PING")
+	defer conn.Close()
+	s.SendRequest(conn, "PING")
 	
-	firstRequest := s.sendRequest(conn, "REPLCONF", "listening-port", s.Port)
+	firstRequest := s.SendRequest(conn, "REPLCONF", "listening-port", s.Port)
 	if !firstRequest.IsOk() {
 		panic(errors.New("Replica start error"))
 	}
 	
-	secondRequest := s.sendRequest(conn, "REPLCONF", "capa", "psync2")
+	secondRequest := s.SendRequest(conn, "REPLCONF", "capa", "psync2")
 	if !secondRequest.IsOk() {
 		panic(errors.New("Replica start error"))
 	}
 
-	s.sendRequest(conn, "PSYNC", "?", "-1")
+	s.SendRequest(conn, "PSYNC", "?", "-1")
 }
 
-func (s *Server) sendRequest(conn net.Conn, arguments ...string) resp.Value {
+func (s *Server) AddReplica(conn net.Conn) {
+	replica := Replica{
+		Connection: conn,
+	}
+
+	s.Replicas = append(s.Replicas, replica)
+}
+
+func (s *Server) SendRequest(conn net.Conn, arguments ...string) resp.Value {
 	parser := resp.New(conn)
 	values := make([]any, len(arguments))
 
@@ -114,6 +124,28 @@ func (s *Server) sendRequest(conn net.Conn, arguments ...string) resp.Value {
 	
 	return response
 }
+
+func (s *Server) SendRdb(conn net.Conn) {
+	base64RDB := "UkVESVMwMDEx+glyZWRpcy12ZXIFNy4yLjD6CnJlZGlzLWJpdHPAQPoFY3RpbWXCbQi8ZfoIdXNlZC1tZW3CsMQQAPoIYW9mLWJhc2XAAP/wbjv+wP9aog=="
+
+	decoded, err := base64.StdEncoding.DecodeString(base64RDB)
+	if err != nil {
+		panic(err)
+	}
+
+	header := fmt.Sprintf("$%d\r\n", len(decoded))
+
+	_, err = conn.Write([]byte(header))
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = conn.Write(decoded)
+	if err != nil {
+		panic(err)
+	}
+}
+
 
 func (s *Server) GetDB() *database.DB {
 	return s.db

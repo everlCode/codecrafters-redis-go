@@ -1,15 +1,26 @@
 package clients
 
+import "net"
+
 type Client struct {
+	connection net.Conn
 	inTx    bool
 	txQueue []CommandQueue
+	replica bool
+	RDBSent bool
 }
 
-func New() *Client {
-	return &Client{}
+func New(conn net.Conn) *Client {
+	return &Client{
+		connection: conn,
+	}
 }
 
-func (c Client) IsTransaction() bool {
+func (c *Client) GetConnection() net.Conn {
+	return c.connection
+}
+
+func (c *Client) IsTransaction() bool {
 	return c.inTx
 }
 
@@ -21,7 +32,7 @@ func (c *Client) EndTransactions() {
 	c.inTx = false
 }
 
-func (c Client) GetCommandQueue() []CommandQueue {
+func (c *Client) GetCommandQueue() []CommandQueue {
 	return c.txQueue
 }
 
@@ -29,6 +40,14 @@ func (c *Client) PushCommandQueue(v CommandQueue) {
 	c.txQueue = append(c.txQueue, v)
 }
 
-func (c Client) ClearCommandQueue() {
+func (c *Client) ClearCommandQueue() {
 	c.txQueue = []CommandQueue{}
+}
+
+func (c *Client) IsReplica() bool {
+	return c.replica
+}
+
+func (c *Client) SetReplica(v bool) {
+	c.replica = v
 }
