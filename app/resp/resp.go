@@ -154,7 +154,13 @@ func (v Value) Marshal() []byte {
 		}
 		capacity := len(v.Bulk)
 
-		return []byte(BULK + strconv.Itoa(capacity) + CRLF + v.Bulk + CRLF)
+		return []byte(
+			BULK +
+				strconv.Itoa(capacity) +
+				CRLF +
+				v.Bulk +
+				CRLF,
+		)
 	case INTEGER:
 		return []byte(INTEGER + strconv.Itoa(v.Integer) + CRLF)
 	case ERROR:
@@ -177,6 +183,10 @@ func SimpleString(value string) Value {
 
 func Bulk(value string) Value {
 	return Value{Type: BULK, Bulk: value}
+}
+
+func NullBulk() Value {
+	return Value{Type: BULK, Bulk: ""}
 }
 
 func Integer(value int) Value {
@@ -222,6 +232,13 @@ func EmptyArray() Value {
 	return Value{
 		Type:  ARRAY,
 		Array: []Value{},
+	}
+}
+
+func NilArray() Value {
+	return Value{
+		Type:  ARRAY,
+		Array: nil,
 	}
 }
 

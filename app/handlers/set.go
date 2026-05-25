@@ -14,10 +14,10 @@ import (
 type SetCommand struct {
 }
 
-func (c SetCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c SetCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	if len(args) < 2 {
-		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
+		return Response(resp.Error("ERR to few args"))
 	}
 
 	key := args[0]
@@ -30,7 +30,7 @@ func (c SetCommand) Execute(args []string, server *server.Server, client *client
 		if strings.ToLower(commnadOption) == "px" {
 			px, err := strconv.ParseInt(args[3], 10, 64)
 			if err != nil {
-				return resp.Value{Type: resp.ERROR, String: "Invalid argument"}
+				return Response(resp.Error("Invalid argument"))
 			}
 			entry.Expires = time.Now().UnixMilli() + px
 		}
@@ -38,5 +38,8 @@ func (c SetCommand) Execute(args []string, server *server.Server, client *client
 
 	db.Set(key, entry)
 
-	return resp.SimpleString("OK")
+	response := Response(resp.SimpleString("OK"))
+	response.SetPropagationCommand(SET, args)
+
+	return response
 }

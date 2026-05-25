@@ -16,10 +16,10 @@ import (
 type XaddCommand struct {
 }
 
-func (c XaddCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c XaddCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	if len(args) < 4 {
-		return resp.Error("ERR to few args!")
+		return Response(resp.Error("ERR to few args!"))
 	}
 
 	key := args[0]
@@ -51,7 +51,7 @@ func (c XaddCommand) Execute(args []string, server *server.Server, client *clien
 	generatedId := c.generateId(id, lastId)
 	_, err := c.validateId(generatedId, lastId)
 	if err != nil {
-		return resp.Error(err.Error())
+		return Response(resp.Error(err.Error()))
 	}
 	stream.Add(generatedId, streamData)
 
@@ -68,7 +68,10 @@ func (c XaddCommand) Execute(args []string, server *server.Server, client *clien
 		}()
 	}
 
-	return resp.Bulk(generatedId)
+	response := Response(resp.Bulk(generatedId))
+	response.SetPropagationCommand(XADD, args)
+
+	return response
 }
 
 func (c XaddCommand) validateId(id string, lastId string) (bool, error) {

@@ -10,7 +10,7 @@ import (
 type LpushCommand struct {
 }
 
-func (c LpushCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c LpushCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	key := args[0]
 	
@@ -33,5 +33,8 @@ func (c LpushCommand) Execute(args []string, server *server.Server, client *clie
 
 	db.Set(key, entry)
 
-	return resp.Integer(lenght)
+	response := Response(resp.Integer(lenght))
+	response.SetPropagationCommand(LPUSH, args)
+
+	return response
 }

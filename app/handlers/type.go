@@ -10,13 +10,13 @@ import (
 type TypeCommand struct {
 }
 
-func (c TypeCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c TypeCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	key := args[0]
 
 	entry, ok := db.Get(key)
 	if !ok {
-		return resp.SimpleString("none")
+		return Response(resp.SimpleString("none"))
 	}
 
 	var response string
@@ -29,5 +29,5 @@ func (c TypeCommand) Execute(args []string, server *server.Server, client *clien
 		response = "undefined"
 	}
 
-	return resp.SimpleString(response)
+	return Response(resp.SimpleString(response))
 }

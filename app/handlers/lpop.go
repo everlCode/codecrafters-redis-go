@@ -11,7 +11,7 @@ import (
 type LPopCommand struct {
 }
 
-func (c LPopCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c LPopCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	key := args[0]
 
@@ -21,16 +21,14 @@ func (c LPopCommand) Execute(args []string, server *server.Server, client *clien
 		c, err := strconv.Atoi(v)
 		count = c
 		if err != nil {
-			return resp.Value{Type: resp.ERROR}
+			return Response(resp.Error(""))
 		}
 	}
 
 	entry, ok := db.Get(key)
 	var response resp.Value
 	if !ok || !entry.IsArray() {
-		return resp.Value{
-			Type: resp.BULK,
-		}
+		return Response(resp.Bulk(""))
 	}
 
 	value := entry.AsArray()
@@ -51,5 +49,5 @@ func (c LPopCommand) Execute(args []string, server *server.Server, client *clien
 
 	db.Set(key, entry)
 
-	return response
+	return Response(response)
 }

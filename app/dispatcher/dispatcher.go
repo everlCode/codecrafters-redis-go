@@ -10,46 +10,47 @@ import (
 	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
 
-func Dispatch(args []string, server *server.Server, client *clients.Client) resp.Value {
+func Dispatch(args []string, server *server.Server, client *clients.Client) handlers.CommandResponse {
 	register := handlers.NewRegister()
 	handlerName := strings.ToUpper(args[0])
 
 	switch handlerName {
 	case "MULTI":
 		client.StartTransactions()
-		return resp.SimpleString("OK")
+		return handlers.Response(resp.SimpleString("OK"))
 	case "EXEC":
 		if !client.IsTransaction() {
-			return resp.Error("ERR EXEC without MULTI")
+			return handlers.Response(resp.Error("ERR EXEC without MULTI"))
 		}
 		client.EndTransactions()
 		var execResp []any
 		for _, c := range client.GetCommandQueue() {
-			execResp = append(execResp, Dispatch(c.Args, server, client))
+			result := Dispatch(c.Args, server, client)
+			execResp = append(execResp, result.GetResponse())
 		}
 
-		return resp.Array(execResp)
+		return handlers.Response(resp.Array(execResp))
 	case "DISCARD":
 		if !client.IsTransaction() {
-			return resp.Error("ERR DISCARD without MULTI")
+			return handlers.Response(resp.Error("ERR DISCARD without MULTI"))
 		}
 		client.ClearCommandQueue()
 		client.EndTransactions()
 
-		return resp.SimpleString("OK")
+		return handlers.Response(resp.SimpleString("OK"))
 	default:
 		handler, err := register.Get(handlerName)
 
 		if err != nil {
-			return resp.Error(fmt.Sprintf("ERR unknown command '%s'", handlerName))
+			return handlers.Response(resp.Error(fmt.Sprintf("ERR unknown command '%s'", handlerName)))
 		}
 
-		var result resp.Value
+		var result handlers.CommandResponse
 		if client.IsTransaction() {
 			commandQueue := clients.NewCommandQueue(handlerName, args)
 			client.PushCommandQueue(commandQueue)
 
-			result = resp.SimpleString("QUEUED")
+			result = handlers.Response(resp.SimpleString("QUEUED"))
 		} else {
 			result = handler.Execute(args[1:], server, client)
 		}

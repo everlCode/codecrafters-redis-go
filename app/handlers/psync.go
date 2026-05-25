@@ -9,7 +9,7 @@ import (
 type PsyncCommand struct {
 }
 
-func (c PsyncCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c PsyncCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	client.SetReplica(true)
-	return resp.SimpleString("FULLRESYNC " + server.MasterReplyId + " 0")
+	return Response(resp.SimpleString("FULLRESYNC " + server.MasterReplyId + " 0"))
 }

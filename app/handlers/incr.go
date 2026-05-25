@@ -10,9 +10,10 @@ import (
 )
 
 type IncrCommand struct {
+
 }
 
-func (c IncrCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c IncrCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	key := args[0]
 
@@ -25,7 +26,7 @@ func (c IncrCommand) Execute(args []string, server *server.Server, client *clien
 	value := entry.AsString()
 	v, err := strconv.Atoi(value)
 	if err != nil {
-		return resp.Error("ERR value is not an integer or out of range")
+		return Response(resp.Error("ERR value is not an integer or out of range"))
 	}
 	v += 1
 	value = strconv.Itoa(v)
@@ -33,5 +34,8 @@ func (c IncrCommand) Execute(args []string, server *server.Server, client *clien
 	entry.Set(value)
 	db.Set(key, entry)
 
-	return resp.Integer(v)
+	response := Response(resp.Integer(v))
+	response.SetPropagationCommand(INCR, args)
+
+	return response
 }

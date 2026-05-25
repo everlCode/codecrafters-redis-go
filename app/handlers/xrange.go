@@ -10,16 +10,16 @@ import (
 type XrangeCommand struct {
 }
 
-func (c XrangeCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c XrangeCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	if len(args) < 3 {
-		return resp.Error("ERR to few args!")
+		return Response(resp.Error("ERR to few args!"))
 	}
 
 	key := args[0]
 	entry, ok := db.Get(key)
 	if !ok {
-		return resp.EmptyArray()
+		return Response(resp.EmptyArray())
 	}
 	start := args[1]
 	end := args[2]
@@ -32,7 +32,7 @@ func (c XrangeCommand) Execute(args []string, server *server.Server, client *cli
 		response = append(response, PrepareStreamEntryData(streamEntry))
 	}
 
-	return resp.Array(response)
+	return Response(resp.Array(response))
 }
 
 func PrepareStreamEntryData(streamEntry database.StreamEntry) []any {

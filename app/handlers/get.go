@@ -11,19 +11,19 @@ import (
 type GetCommand struct {
 }
 
-func (c GetCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c GetCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	if len(args) < 1 {
-		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
+		return Response(resp.Error("ERR to few args"))
 	}
 
 	key := args[0]
 
 	value, ok := db.Get(key)
 	if !ok || (value.Expires != 0 && value.Expires < time.Now().UnixMilli()) {
-		return resp.Bulk("")
+		return Response(resp.NullBulk())
 	}
 	str := value.AsString()
 
-	return resp.Bulk(str)
+	return Response(resp.Bulk(str))
 }

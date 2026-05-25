@@ -9,16 +9,16 @@ import (
 type LLenCommand struct {
 }
 
-func (c LLenCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c LLenCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	key := args[0]
 
 	value, ok := db.Get(key)
 	if !ok || !value.IsArray() {
-		return resp.Integer(0)
+		return Response(resp.Integer(0))
 	}
 
 	lenght := len(value.AsArray())
 
-	return resp.Integer(lenght)
+	return Response(resp.Integer(lenght))
 }

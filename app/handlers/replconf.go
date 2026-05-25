@@ -9,6 +9,6 @@ import (
 type ReplconfCommand struct {
 }
 
-func (c ReplconfCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
-	return resp.SimpleString("OK")
+func (c ReplconfCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
+	return Response(resp.SimpleString("OK"))
 }

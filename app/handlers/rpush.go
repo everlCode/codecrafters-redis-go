@@ -10,7 +10,7 @@ import (
 type RpushCommand struct {
 }
 
-func (c RpushCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c RpushCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	key := args[0]
 
@@ -29,5 +29,8 @@ func (c RpushCommand) Execute(args []string, server *server.Server, client *clie
 
 	db.Set(key, entry)
 
-	return resp.Integer(length)
+	response := Response(resp.Integer(length))
+	response.SetPropagationCommand(RPUSH, args)
+
+	return response
 }

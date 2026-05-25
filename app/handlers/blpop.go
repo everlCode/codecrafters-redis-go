@@ -11,7 +11,7 @@ import (
 type BlPopCommand struct {
 }
 
-func (c BlPopCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c BlPopCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	key := args[0]
 
@@ -40,13 +40,10 @@ func (c BlPopCommand) Execute(args []string, server *server.Server, client *clie
 				}
 			}
 		} else {
-			response = resp.Value{
-				Type:  resp.ARRAY,
-				Array: nil,
-			}
+			response = resp.NilArray()
 		}
 
-		return response
+		return Response(response)
 	}
 
 	ch := db.PushWaiter(key, endDate)
@@ -58,10 +55,7 @@ func (c BlPopCommand) Execute(args []string, server *server.Server, client *clie
 		case v := <-ch:
 			entry = v
 		case <-time.After(timeout):
-			return resp.Value{
-				Type:  resp.ARRAY,
-				Array: nil,
-			}
+			return Response(resp.NilArray())
 		}
 	}
 	data := entry.AsArray()
@@ -69,5 +63,5 @@ func (c BlPopCommand) Execute(args []string, server *server.Server, client *clie
 		data = []string{key, data[0]}
 	}
 
-	return resp.ArrayString(data)
+	return Response(resp.ArrayString(data))
 }

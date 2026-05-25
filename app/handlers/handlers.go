@@ -33,5 +33,34 @@ type Command interface {
 		args []string,
 		server *server.Server,
 		client *clients.Client,
-	) resp.Value
+	) CommandResponse
+}
+
+type CommandResponse struct {
+	value resp.Value
+	IsPropagation bool
+	PropCommand PropagationCommand
+}
+
+type PropagationCommand struct {
+	Name string
+	Args []string
+}
+
+func (cr *CommandResponse) GetResponse() resp.Value {
+	return cr.value
+}
+
+func (cr *CommandResponse) SetPropagationCommand(name string, args []string) {
+	cr.IsPropagation = true
+	cr.PropCommand = PropagationCommand{
+		Name: name,
+		Args: args,
+	}
+}
+
+func Response(data resp.Value) CommandResponse {
+	return CommandResponse{
+		value: data,
+	}
 }

@@ -14,10 +14,10 @@ import (
 type XreadCommand struct {
 }
 
-func (c XreadCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c XreadCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	if len(args) < 3 {
-		return resp.Error("ERR to few args!")
+		return Response(resp.Error("ERR to few args!"))
 	}
 
 	parsedArgs := c.parseArgs(args)
@@ -56,10 +56,7 @@ func (c XreadCommand) Execute(args []string, server *server.Server, client *clie
 				entry = v
 
 			case <-timeoutCh:
-				return resp.Value{
-					Type:  resp.ARRAY,
-					Array: nil,
-				}
+				return Response(resp.NilArray())
 			}
 		}
 		stream, _ = entry.AsStream()
@@ -77,7 +74,7 @@ func (c XreadCommand) Execute(args []string, server *server.Server, client *clie
 		response = append(response, streamData)
 	}
 
-	return resp.Array(response)
+	return Response(resp.Array(response))
 }
 
 func (c XreadCommand) parseArgs(args []string) map[string]any {

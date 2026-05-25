@@ -4,16 +4,17 @@
 
 
 
+
     {
       "name": "Debug Redis Server",
       "type": "go",
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/app",
-      "args": [
-        "--port=6380",
-        "--replicaof=localhost 6379"
-      ]
+      // "args": [
+      //   "--port=6380",
+      //   "--replicaof=localhost 6379"
+      // ]
     }
   ]
 }

@@ -2,13 +2,13 @@ package server
 
 import (
 	"encoding/base64"
-	"errors"
 	"flag"
 	"fmt"
 	"net"
 	"os"
 	"strings"
 
+	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -28,6 +28,7 @@ type Server struct {
 	MasterPort string
 	MasterReplyId string
 	MasterReplyOffset string
+	MasterConnection net.Conn
 }
 
 func New(db *database.DB) *Server {
@@ -71,32 +72,59 @@ func (s *Server) Start() net.Listener {
 		os.Exit(1)
 	}
 
-	if s.Role == SLAVE_ROLE {
-		s.initReplica()
-	}
-
 	return listener
 }
 
-func (s *Server) initReplica() {
+func (s *Server) InitReplica() *clients.Client {
 	conn, err := net.Dial("tcp", s.MasterHost + ":" + s.MasterPort)
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
-	s.SendRequest(conn, "PING")
+	s.MasterConnection = conn
 	
-	firstRequest := s.SendRequest(conn, "REPLCONF", "listening-port", s.Port)
-	if !firstRequest.IsOk() {
-		panic(errors.New("Replica start error"))
-	}
-	
-	secondRequest := s.SendRequest(conn, "REPLCONF", "capa", "psync2")
-	if !secondRequest.IsOk() {
-		panic(errors.New("Replica start error"))
+	client := clients.New(conn)
+	client.SetMasterConnection(true)
+
+	s.MasterConnection = conn
+
+	parser := resp.New(conn)
+
+	s.writeCommand(conn, "PING")
+	parser.Read()
+
+	s.writeCommand(
+		conn,
+		"REPLCONF",
+		"listening-port",
+		s.Port,
+	)
+	s.mustReadOk(parser)
+
+	s.writeCommand(
+		conn,
+		"REPLCONF",
+		"capa",
+		"psync2",
+	)
+	s.mustReadOk(parser)
+
+	s.writeCommand(
+		conn,
+		"PSYNC",
+		"?",
+		"-1",
+	)
+
+	fullResync, err := parser.Read()
+	if err != nil {
+		panic(err)
 	}
 
-	s.SendRequest(conn, "PSYNC", "?", "-1")
+	fmt.Println(fullResync.String)
+
+	s.readRdb(parser)
+
+	return client
 }
 
 func (s *Server) AddReplica(conn net.Conn) {
@@ -105,6 +133,39 @@ func (s *Server) AddReplica(conn net.Conn) {
 	}
 
 	s.Replicas = append(s.Replicas, replica)
+}
+
+func (s *Server) writeCommand(
+	conn net.Conn,
+	arguments ...string,
+) {
+	values := make([]any, len(arguments))
+
+	for i, arg := range arguments {
+		values[i] = arg
+	}
+
+	_, err := conn.Write(
+		resp.Array(values).Marshal(),
+	)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (s *Server) readRdb(parser *resp.Parser) {
+	parser.Read()
+}
+
+func (s *Server) mustReadOk(parser *resp.Parser) {
+	response, err := parser.Read()
+	if err != nil {
+		panic(err)
+	}
+
+	if !response.IsOk() {
+		panic("invalid response")
+	}
 }
 
 func (s *Server) SendRequest(conn net.Conn, arguments ...string) resp.Value {
@@ -117,7 +178,8 @@ func (s *Server) SendRequest(conn net.Conn, arguments ...string) resp.Value {
 
 	_, err := conn.Write(resp.Array(values).Marshal())
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		panic(err.Error())
 	}
 
 	response, err := parser.Read()
@@ -146,6 +208,24 @@ func (s *Server) SendRdb(conn net.Conn) {
 	}
 }
 
+func (s *Server) SendPropagation(
+	commandName string,
+	args []string,
+) {
+	request := append(
+		[]string{commandName},
+		args...,
+	)
+
+	data := resp.ArrayString(request).Marshal()
+
+	for _, replica := range s.Replicas {
+		_, err := replica.Connection.Write(data)
+		if err != nil {
+			continue
+		}
+	}
+}
 
 func (s *Server) GetDB() *database.DB {
 	return s.db

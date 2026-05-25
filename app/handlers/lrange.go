@@ -11,10 +11,10 @@ import (
 type LRangeCommand struct {
 }
 
-func (c LRangeCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
+func (c LRangeCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	db := server.GetDB()
 	if len(args) < 3 {
-		return resp.Value{Type: resp.ERROR, String: "ERR to few args"}
+		return Response(resp.Error("ERR to few args"))
 	}
 	key := args[0]
 	startValue := args[1]
@@ -22,11 +22,11 @@ func (c LRangeCommand) Execute(args []string, server *server.Server, client *cli
 
 	start, err := strconv.Atoi(startValue)
 	if err != nil {
-		return resp.Value{Type: resp.ERROR, Bulk: err.Error()}
+		return Response(resp.Error(err.Error()))
 	}
 	end, err := strconv.Atoi(endValue)
 	if err != nil {
-		return resp.Value{Type: resp.ERROR, Bulk: err.Error()}
+		return Response(resp.Error(err.Error()))
 	}
 
 	entry, ok := db.Get(key)
@@ -47,24 +47,15 @@ func (c LRangeCommand) Execute(args []string, server *server.Server, client *cli
 	}
 
 	if start > end && end >= 0 {
-		return resp.Value{
-			Type:  resp.ARRAY,
-			Array: []resp.Value{},
-		}
+		return Response(resp.EmptyArray())
 	}
 
 	if !ok || !entry.IsArray() {
-		return resp.Value{
-			Type:  resp.ARRAY,
-			Array: []resp.Value{},
-		}
+		return Response(resp.EmptyArray())
 	}
 
 	if start >= lenght {
-		return resp.Value{
-			Type:  resp.ARRAY,
-			Array: []resp.Value{},
-		}
+		return Response(resp.EmptyArray())
 	}
 
 	if end == -1 || end >= lenght || end == 0 {
@@ -73,5 +64,5 @@ func (c LRangeCommand) Execute(args []string, server *server.Server, client *cli
 		data = data[start:end]
 	}
 
-	return resp.ArrayString(data)
+	return Response(resp.ArrayString(data))
 }

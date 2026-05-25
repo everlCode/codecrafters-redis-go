@@ -9,6 +9,6 @@ import (
 type PingCommand struct {
 }
 
-func (c PingCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
-	return resp.Value{Type: resp.STRING, String: "PONG"}
+func (c PingCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
+	return Response(resp.SimpleString("PONG"))
 }

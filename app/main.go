@@ -19,8 +19,17 @@ var _ = os.Exit
 
 func main() {
 	db := database.New()
-	server := server.New(db)
-	listener := server.Start()
+	s := server.New(db)
+	listener := s.Start()
+
+	var masterClient *clients.Client
+	if s.Role == server.SLAVE_ROLE {
+		masterClient = s.InitReplica()
+	}
+
+	if s.MasterConnection != nil {
+		go handle(masterClient, s)
+	}
 	
 	for {
 		conn, err := listener.Accept()
@@ -28,16 +37,17 @@ func main() {
 			fmt.Println("Error accepting connection: ", err.Error())
 			continue
 		}
-		go handle(conn, server)
+		client := clients.New(conn)
+		go handle(client, s)
 	}
 }
 
-func handle(conn net.Conn, server *server.Server) {
+func handle(client *clients.Client, server *server.Server) {
+	conn := client.GetConnection()
 	defer conn.Close()
 
 	parser := resp.New(conn)
 	writer := NewWriter(conn)
-	client := clients.New(conn)
 
 	for {
 		request, err := parser.Read()
@@ -66,10 +76,18 @@ func handle(conn net.Conn, server *server.Server) {
 		args := resp.ParseSlice(request.Array)
 		result := dispatcher.Dispatch(args, server, client)
 		
-		writer.Write(result)
+		if !client.MasterConnection() {
+			writer.Write(result.GetResponse())
+		}
+		
 		if client.IsReplica() && !client.RDBSent {
 			server.SendRdb(client.GetConnection())
 			client.RDBSent = true
+			server.AddReplica(conn)
+		}
+		
+		if result.IsPropagation {
+			server.SendPropagation(result.PropCommand.Name, result.PropCommand.Args)
 		}
 	}
 }

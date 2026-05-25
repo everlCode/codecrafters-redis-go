@@ -11,14 +11,24 @@ import (
 type InfoCommand struct {
 }
 
-func (c InfoCommand) Execute(args []string, server *server.Server, client *clients.Client) resp.Value {
-	key := args[0]
-	
-	switch strings.ToLower(key) {
+func (c InfoCommand) Execute(
+	args []string,
+	server *server.Server,
+	client *clients.Client,
+) CommandResponse {
+
+	section := strings.ToLower(args[0])
+
+	switch section {
 	case "replication":
-		return resp.Bulk("# Replication \r\n role:" + server.Role + "\r\n" + 
-		"master_replid:" + server.MasterReplyId + "\r\n" + 
-		"master_repl_offset:" + server.MasterReplyOffset)
+		info :=
+			"# Replication\r\n" +
+				"role:" + server.Role + "\r\n" +
+				"master_replid:" + server.MasterReplyId + "\r\n" +
+				"master_repl_offset:" + server.MasterReplyOffset + "\r\n"
+
+		return Response(resp.Bulk(info))
 	}
-	return resp.Bulk("")
+
+	return Response(resp.Bulk(""))
 }

@@ -8,6 +8,7 @@ type Client struct {
 	txQueue []CommandQueue
 	replica bool
 	RDBSent bool
+	masterConnection bool
 }
 
 func New(conn net.Conn) *Client {
@@ -50,4 +51,12 @@ func (c *Client) IsReplica() bool {
 
 func (c *Client) SetReplica(v bool) {
 	c.replica = v
+}
+
+func (c *Client) SetMasterConnection(v bool) {
+	c.masterConnection = v
+}
+
+func (c *Client) MasterConnection() bool {
+	return c.masterConnection
 }
