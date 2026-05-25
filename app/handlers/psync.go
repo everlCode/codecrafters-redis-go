@@ -11,5 +11,5 @@ type PsyncCommand struct {
 func (c PsyncCommand) Execute(args []string, server *server.Server) resp.Value {
 
 
-	return resp.SimpleString("OK")
+	return resp.SimpleString("FULLRESYNC " + server.MasterReplyId + " 0")
 }
