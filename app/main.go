@@ -76,14 +76,16 @@ func handle(client *clients.Client, server *server.Server) {
 		args := resp.ParseSlice(request.Array)
 		result := dispatcher.Dispatch(args, server, client)
 		
-		if !client.MasterConnection() {
+		if !client.MasterConnection() || result.NeedAnswer {
 			writer.Write(result.GetResponse())
 		}
 		
 		if client.IsReplica() && !client.RDBSent {
 			server.SendRdb(client.GetConnection())
 			client.RDBSent = true
-			server.AddReplica(conn)
+			server.AddReplica(client.GetConnection())
+
+			//server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
 		}
 		
 		if result.IsPropagation {

@@ -115,12 +115,7 @@ func (s *Server) InitReplica() *clients.Client {
 		"-1",
 	)
 
-	fullResync, err := parser.Read()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(fullResync.String)
+	parser.Read()
 
 	s.readRdb(parser)
 

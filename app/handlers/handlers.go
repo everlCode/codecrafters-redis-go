@@ -39,6 +39,7 @@ type Command interface {
 type CommandResponse struct {
 	value resp.Value
 	IsPropagation bool
+	NeedAnswer bool
 	PropCommand PropagationCommand
 }
 
