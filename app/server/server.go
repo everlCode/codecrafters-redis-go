@@ -23,14 +23,13 @@ type Server struct {
 	config *Config
 	Port string
 	Role string
-	Replicas []Replica
+	Replicas []*Replica
 	MasterHost string
 	MasterPort string
 	MasterReplyId string
-	MasterReplyOffset string
 	MasterConnection net.Conn
+	masterOffset int
 }
-
 func New(db *database.DB) *Server {
 	config := NewConfig()
 	port := flag.String("port", "6379", "redis port")
@@ -57,7 +56,6 @@ func New(db *database.DB) *Server {
 		MasterHost: masterHost,
 		MasterPort: MasterPort,
 		MasterReplyId: "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
-		MasterReplyOffset: "0",
 	}
 }
 
@@ -123,12 +121,34 @@ func (s *Server) InitReplica() *clients.Client {
 	return client
 }
 
-func (s *Server) AddReplica(conn net.Conn) {
-	replica := Replica{
-		Connection: conn,
+func (s *Server) AddOffset(v int) {
+	s.masterOffset += v
+}
+
+func (s *Server) GetOffset() int {
+	return s.masterOffset
+}
+
+func (s *Server) GetReplicas() []*Replica {
+	return s.Replicas
+}
+
+func (s *Server) FindReplicaByClient(client *clients.Client) *Replica {
+	for _, r := range s.GetReplicas() {
+		if r.GetClient() == client {
+			return  r
+		}
 	}
 
-	s.Replicas = append(s.Replicas, replica)
+	return nil
+}
+
+func (s *Server) AddReplica(client *clients.Client) {
+	replica := Replica{
+		client: client,
+	}
+
+	s.Replicas = append(s.Replicas, &replica)
 }
 
 func (s *Server) writeCommand(
@@ -160,8 +180,8 @@ func (s *Server) mustReadOk(parser *resp.Parser) {
 	}
 }
 
-func (s *Server) SendRequest(conn net.Conn, arguments ...string) resp.Value {
-	parser := resp.New(conn)
+func (s *Server) SendRequest(client *clients.Client, arguments ...string) {
+	conn := client.GetConnection()
 	values := make([]any, len(arguments))
 
 	for i, arg := range arguments {
@@ -173,10 +193,6 @@ func (s *Server) SendRequest(conn net.Conn, arguments ...string) resp.Value {
 		fmt.Println(err.Error())
 		panic(err.Error())
 	}
-
-	response, err := parser.Read()
-	
-	return response
 }
 
 func (s *Server) SendRdb(conn net.Conn) {
@@ -203,6 +219,7 @@ func (s *Server) SendRdb(conn net.Conn) {
 func (s *Server) SendPropagation(
 	commandName string,
 	args []string,
+	server *Server,
 ) {
 	request := append(
 		[]string{commandName},
@@ -210,9 +227,10 @@ func (s *Server) SendPropagation(
 	)
 
 	data := resp.ArrayString(request).Marshal()
+	server.AddOffset(len(data))
 
 	for _, replica := range s.Replicas {
-		_, err := replica.Connection.Write(data)
+		_, err := replica.GetClient().GetConnection().Write(data)
 		if err != nil {
 			continue
 		}

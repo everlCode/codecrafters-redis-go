@@ -21,7 +21,7 @@ func (c InfoCommand) Execute(
 		"# Replication\r\n" +
 			"role:" + server.Role + "\r\n" +
 			"master_replid:" + server.MasterReplyId + "\r\n" +
-			"master_repl_offset:" + server.MasterReplyOffset + "\r\n"
+			"master_repl_offset:" + "0" + "\r\n"
 
 	return Response(resp.Bulk(info))
 

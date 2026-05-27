@@ -85,7 +85,7 @@ func handle(client *clients.Client, server *server.Server) {
 			server.SendRdb(client.GetConnection())
 			client.RDBSent = true
 
-			server.AddReplica(client.GetConnection())
+			server.AddReplica(client)
 
 			// server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
 			// server.SendRequest(client.GetConnection(), "SET", "strawberry", "pear")
@@ -93,8 +93,8 @@ func handle(client *clients.Client, server *server.Server) {
 			// server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
 		}
 
-		if result.IsPropagation {
-			server.SendPropagation(result.PropCommand.Name, result.PropCommand.Args)
+		if result.IsPropagation && !client.MasterConnection() {
+			server.SendPropagation(result.PropCommand.Name, result.PropCommand.Args, server)
 		}
 
 		if client.MasterConnection() {
