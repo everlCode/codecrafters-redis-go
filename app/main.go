@@ -30,7 +30,7 @@ func main() {
 	if s.MasterConnection != nil {
 		go handle(masterClient, s)
 	}
-	
+
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -51,6 +51,7 @@ func handle(client *clients.Client, server *server.Server) {
 
 	for {
 		request, err := parser.Read()
+		
 		if err != nil {
 			if err == io.EOF {
 				return
@@ -75,21 +76,25 @@ func handle(client *clients.Client, server *server.Server) {
 		}
 		args := resp.ParseSlice(request.Array)
 		result := dispatcher.Dispatch(args, server, client)
-		
+
+		fmt.Printf("Command +%s TOTAL=%d\n", args[0], parser.GetOffset())
+
 		if !client.MasterConnection() || result.NeedAnswer {
 			writer.Write(result.GetResponse())
 		}
-		
+
 		if client.IsReplica() && !client.RDBSent {
 			server.SendRdb(client.GetConnection())
 			client.RDBSent = true
+
 			server.AddReplica(client.GetConnection())
 
 			server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
-			server.SendRequest(client.GetConnection(), "PING")
+			server.SendRequest(client.GetConnection(), "SET", "strawberry", "pear")
+			server.SendRequest(client.GetConnection(), "SET", "orange", "apple")
 			server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
 		}
-		
+
 		if result.IsPropagation {
 			server.SendPropagation(result.PropCommand.Name, result.PropCommand.Args)
 		}
@@ -99,4 +104,3 @@ func handle(client *clients.Client, server *server.Server) {
 		}
 	}
 }
-

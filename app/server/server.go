@@ -87,7 +87,7 @@ func (s *Server) InitReplica() *clients.Client {
 
 	s.MasterConnection = conn
 
-	parser := resp.New(conn)
+	parser := client.GetParser()
 
 	s.writeCommand(conn, "PING")
 	parser.Read()
@@ -118,6 +118,7 @@ func (s *Server) InitReplica() *clients.Client {
 	parser.Read()
 
 	parser.ReadRDB()
+	client.SetOffset(0)
 
 	return client
 }
@@ -146,10 +147,6 @@ func (s *Server) writeCommand(
 	if err != nil {
 		panic(err)
 	}
-}
-
-func (s *Server) readRdb(conn net.Conn) {
-	
 }
 
 func (s *Server) mustReadOk(parser *resp.Parser) {

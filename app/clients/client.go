@@ -25,8 +25,14 @@ func New(conn net.Conn) *Client {
 	}
 }
 
+func (c *Client) SetOffset(v int) {
+	c.parser.SetOffset(v)
+	c.offset = v
+}
+
 func (c *Client) AddOffset(v int) {
 	c.offset += v
+	c.parser.SetOffset(0)
 }
 
 func (c Client) GetOffset() int {

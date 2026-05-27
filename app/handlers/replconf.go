@@ -16,6 +16,7 @@ func (c ReplconfCommand) Execute(args []string, server *server.Server, client *c
 	if len(args) > 0 {
 		firstArgeument = args[0]
 	}
+	
 	if (firstArgeument == "GETACK") {
 		offset :=  client.GetOffset()
 		offetDigit := strconv.Itoa(offset)

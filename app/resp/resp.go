@@ -40,6 +40,10 @@ func New(conn net.Conn) *Parser {
 	}
 }
 
+func (p *Parser) SetOffset(v int) {
+	p.offset = v
+}
+
 func (p *Parser) AddOffset(v int) {
 	p.offset += v
 }
@@ -99,7 +103,7 @@ func (p *Parser) ReadArray() (Value, error) {
 
 func (p *Parser) ReadInteger() (int, error) {
 	bytes, _, _ := p.reader.ReadLine()
-	p.AddOffset(1)
+	p.AddOffset(len(bytes) + 2)
 	len, err := strconv.Atoi(string(bytes))
 	if err != nil {
 		return 0, err
@@ -115,7 +119,7 @@ func (p *Parser) ReadBulk() (Value, error) {
 	}
 
 	bytes, _, _ := p.reader.ReadLine()
-	p.AddOffset(1)
+	p.AddOffset(len(bytes) + 2)
 
 	str := string(bytes)
 	if utf8.RuneCountInString(str) != capacity {
@@ -132,7 +136,7 @@ func (p *Parser) ReadBulk() (Value, error) {
 
 func (p *Parser) ReadString() (Value, error) {
 	bytes, _, _ := p.reader.ReadLine()
-	p.AddOffset(2)
+	p.AddOffset(len(bytes))
 
 	str := string(bytes)
 
