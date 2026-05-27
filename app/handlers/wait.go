@@ -10,5 +10,10 @@ type WaitCommand struct {
 }
 
 func (c WaitCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
-	return Response(resp.Integer(0))
+	var count int = 0
+	if len(server.Replicas) > 0 {
+		count = len(server.Replicas)
+	}
+
+	return Response(resp.Integer(count))
 }

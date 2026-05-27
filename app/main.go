@@ -77,8 +77,6 @@ func handle(client *clients.Client, server *server.Server) {
 		args := resp.ParseSlice(request.Array)
 		result := dispatcher.Dispatch(args, server, client)
 
-		fmt.Printf("Command +%s TOTAL=%d\n", args[0], parser.GetOffset())
-
 		if !client.MasterConnection() || result.NeedAnswer {
 			writer.Write(result.GetResponse())
 		}
