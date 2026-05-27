@@ -77,7 +77,7 @@ func handle(client *clients.Client, server *server.Server) {
 		args := resp.ParseSlice(request.Array)
 		result := dispatcher.Dispatch(args, server, client)
 
-		if !client.MasterConnection() || result.NeedAnswer {
+		if (!client.MasterConnection() && !client.IsReplica()) || result.NeedAnswer {
 			writer.Write(result.GetResponse())
 		}
 

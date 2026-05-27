@@ -45,21 +45,21 @@ func (c WaitCommand) Execute(args []string, server *server.Server, client *clien
 		}
 
 		now := time.Now()
+		deadline := now.Add(time.Duration(timeout) * time.Millisecond)
+		targetOffset := server.GetOffset()
 
-		for {
-			if time.Now().Before(now.Add(time.Duration(timeout) * time.Millisecond)) {
-				break
+		for time.Now().Before(deadline) {
+			count = 0
+
+			for _, replic := range replicas {
+				if replic.GetOffset() >= targetOffset {
+					count++
+				}
 			}
 
 			if count >= replicaCount {
 				break
 			} 
-
-			for _, replic := range replicas {
-				if replic.GetOffset() >= server.GetOffset() {
-					count++
-				}
-			}
 		}
 
 	}

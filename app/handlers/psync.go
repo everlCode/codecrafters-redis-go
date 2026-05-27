@@ -11,5 +11,8 @@ type PsyncCommand struct {
 
 func (c PsyncCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	client.SetReplica(true)
-	return Response(resp.SimpleString("FULLRESYNC " + server.MasterReplyId + " 0"))
+	response := Response(resp.SimpleString("FULLRESYNC " + server.MasterReplyId + " 0"))
+	response.NeedAnswer = true
+
+	return response
 }
