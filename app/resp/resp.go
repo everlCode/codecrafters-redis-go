@@ -25,7 +25,7 @@ type Value struct {
 	String  string
 	Bulk    string
 	Array   []Value
-	Bytes []byte
+	Bytes   []byte
 }
 
 type Parser struct {
@@ -50,7 +50,7 @@ func (p *Parser) GetOffset() int {
 
 func (v Value) IsOk() bool {
 	if v.Type != STRING {
-		return false;
+		return false
 	}
 
 	return strings.ToLower(v.String) == "ok"
@@ -99,6 +99,7 @@ func (p *Parser) ReadArray() (Value, error) {
 
 func (p *Parser) ReadInteger() (int, error) {
 	bytes, _, _ := p.reader.ReadLine()
+	p.AddOffset(1)
 	len, err := strconv.Atoi(string(bytes))
 	if err != nil {
 		return 0, err
@@ -114,6 +115,7 @@ func (p *Parser) ReadBulk() (Value, error) {
 	}
 
 	bytes, _, _ := p.reader.ReadLine()
+	p.AddOffset(1)
 
 	str := string(bytes)
 	if utf8.RuneCountInString(str) != capacity {
@@ -130,15 +132,38 @@ func (p *Parser) ReadBulk() (Value, error) {
 
 func (p *Parser) ReadString() (Value, error) {
 	bytes, _, _ := p.reader.ReadLine()
+	p.AddOffset(2)
 
 	str := string(bytes)
 
 	v := Value{
-		Type: STRING,
+		Type:   STRING,
 		String: str,
 	}
 
 	return v, nil
+}
+
+func (p *Parser) ReadRDB() {
+	bytes, _, err := p.reader.ReadLine()
+	if err != nil {
+		panic(err)
+	}
+	str := string(bytes)
+	str = strings.Replace(str, "$", "", 1)
+	bodyLength, err := strconv.Atoi(str)
+	if err != nil {
+		panic(err)
+	}
+
+	var body []byte
+	for i := 0; i < bodyLength; i++ {
+		b, err := p.reader.ReadByte()
+		if err != nil {
+			panic(err)
+		}
+		body = append(body, b)
+	}
 }
 
 func (v Value) Marshal() []byte {
@@ -255,7 +280,7 @@ func NilArray() Value {
 
 func File(data []byte) Value {
 	return Value{
-		Type: BULK,
+		Type:  BULK,
 		Bytes: data,
 	}
 }

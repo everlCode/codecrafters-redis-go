@@ -117,7 +117,7 @@ func (s *Server) InitReplica() *clients.Client {
 
 	parser.Read()
 
-	s.readRdb(parser)
+	parser.ReadRDB()
 
 	return client
 }
@@ -148,8 +148,8 @@ func (s *Server) writeCommand(
 	}
 }
 
-func (s *Server) readRdb(parser *resp.Parser) {
-	parser.Read()
+func (s *Server) readRdb(conn net.Conn) {
+	
 }
 
 func (s *Server) mustReadOk(parser *resp.Parser) {
