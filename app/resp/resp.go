@@ -102,8 +102,7 @@ func (p *Parser) ReadArray() (Value, error) {
 }
 
 func (p *Parser) ReadInteger() (int, error) {
-	bytes, _, _ := p.reader.ReadLine()
-	p.AddOffset(len(bytes) + 2)
+	bytes := p.ReadLine()
 	len, err := strconv.Atoi(string(bytes))
 	if err != nil {
 		return 0, err
@@ -118,8 +117,7 @@ func (p *Parser) ReadBulk() (Value, error) {
 		return Value{}, err
 	}
 
-	bytes, _, _ := p.reader.ReadLine()
-	p.AddOffset(len(bytes) + 2)
+	bytes := p.ReadLine()
 
 	str := string(bytes)
 	if utf8.RuneCountInString(str) != capacity {
@@ -135,8 +133,7 @@ func (p *Parser) ReadBulk() (Value, error) {
 }
 
 func (p *Parser) ReadString() (Value, error) {
-	bytes, _, _ := p.reader.ReadLine()
-	p.AddOffset(len(bytes))
+	bytes := p.ReadLine()
 
 	str := string(bytes)
 
@@ -146,6 +143,21 @@ func (p *Parser) ReadString() (Value, error) {
 	}
 
 	return v, nil
+}
+
+func (p *Parser) ReadLine() []byte {
+	line, err := p.reader.ReadBytes('\n')
+	if err != nil {
+		panic(err)
+	}
+
+	p.AddOffset(len(line))
+
+	if len(line) >= 2 && line[len(line)-2] == '\r' {
+		line = line[:len(line)-2]
+	}
+
+	return line
 }
 
 func (p *Parser) ReadRDB() {

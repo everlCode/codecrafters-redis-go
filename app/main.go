@@ -89,10 +89,10 @@ func handle(client *clients.Client, server *server.Server) {
 
 			server.AddReplica(client.GetConnection())
 
-			server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
-			server.SendRequest(client.GetConnection(), "SET", "strawberry", "pear")
-			server.SendRequest(client.GetConnection(), "SET", "orange", "apple")
-			server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
+			// server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
+			// server.SendRequest(client.GetConnection(), "SET", "strawberry", "pear")
+			// server.SendRequest(client.GetConnection(), "SET", "orange", "apple")
+			// server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
 		}
 
 		if result.IsPropagation {
