@@ -34,10 +34,8 @@ func (c BlPopCommand) Execute(args []string, server *server.Server, client *clie
 				firstValue := value[0]
 				entry.Set(value[1:])
 				db.Set(key, entry)
-				response = resp.Value{
-					Type:  resp.ARRAY,
-					Array: []resp.Value{resp.Value{Type: resp.BULK, Bulk: key}, resp.Value{Type: resp.BULK, Bulk: firstValue}},
-				}
+
+				response = resp.ArrayString([]string{key, firstValue})
 			}
 		} else {
 			response = resp.NilArray()

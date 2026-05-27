@@ -26,6 +26,7 @@ const (
 	INFO   = "INFO"
 	REPLCONF   = "REPLCONF"
 	PSYNC   = "PSYNC"
+	WAIT   = "WAIT"
 )
 
 type Command interface {
@@ -65,3 +66,6 @@ func Response(data resp.Value) CommandResponse {
 		value: data,
 	}
 }
+
+
+

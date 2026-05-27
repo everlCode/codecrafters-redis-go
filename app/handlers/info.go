@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"strings"
-
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 	"github.com/codecrafters-io/redis-starter-go/app/server"
@@ -17,18 +15,14 @@ func (c InfoCommand) Execute(
 	client *clients.Client,
 ) CommandResponse {
 
-	section := strings.ToLower(args[0])
+	//section := strings.ToLower(args[0])
 
-	switch section {
-	case "replication":
-		info :=
-			"# Replication\r\n" +
-				"role:" + server.Role + "\r\n" +
-				"master_replid:" + server.MasterReplyId + "\r\n" +
-				"master_repl_offset:" + server.MasterReplyOffset + "\r\n"
+	info :=
+		"# Replication\r\n" +
+			"role:" + server.Role + "\r\n" +
+			"master_replid:" + server.MasterReplyId + "\r\n" +
+			"master_repl_offset:" + server.MasterReplyOffset + "\r\n"
 
-		return Response(resp.Bulk(info))
-	}
+	return Response(resp.Bulk(info))
 
-	return Response(resp.Bulk(""))
 }

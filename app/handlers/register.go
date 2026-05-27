@@ -30,6 +30,7 @@ func NewRegister() *Register {
 	register.Add(INFO, &InfoCommand{})
 	register.Add(REPLCONF, &ReplconfCommand{})
 	register.Add(PSYNC, &PsyncCommand{})
+	register.Add(WAIT, &WaitCommand{})
 
 	return register
 }
