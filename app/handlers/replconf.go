@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 	"github.com/codecrafters-io/redis-starter-go/app/server"
@@ -15,7 +17,9 @@ func (c ReplconfCommand) Execute(args []string, server *server.Server, client *c
 		firstArgeument = args[0]
 	}
 	if (firstArgeument == "GETACK") {
-		response := Response(resp.Array([]any{"REPLCONF", "ACK", "0"}))
+		offset :=  client.GetOffset()
+		offetDigit := strconv.Itoa(offset)
+		response := Response(resp.Array([]any{"REPLCONF", "ACK", offetDigit}))
 		response.NeedAnswer = true
 
 		return response

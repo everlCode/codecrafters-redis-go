@@ -30,12 +30,22 @@ type Value struct {
 
 type Parser struct {
 	reader *bufio.Reader
+	offset int
 }
 
 func New(conn net.Conn) *Parser {
 	return &Parser{
 		reader: bufio.NewReader(conn),
+		offset: 0,
 	}
+}
+
+func (p *Parser) AddOffset(v int) {
+	p.offset += v
+}
+
+func (p *Parser) GetOffset() int {
+	return p.offset
 }
 
 func (v Value) IsOk() bool {
@@ -48,6 +58,7 @@ func (v Value) IsOk() bool {
 
 func (p *Parser) Read() (Value, error) {
 	_type, err := p.reader.ReadByte()
+	p.AddOffset(1)
 	if err != nil {
 		return Value{}, err
 	}

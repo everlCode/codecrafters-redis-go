@@ -46,8 +46,8 @@ func handle(client *clients.Client, server *server.Server) {
 	conn := client.GetConnection()
 	defer conn.Close()
 
-	parser := resp.New(conn)
 	writer := NewWriter(conn)
+	parser := client.GetParser()
 
 	for {
 		request, err := parser.Read()
@@ -85,11 +85,17 @@ func handle(client *clients.Client, server *server.Server) {
 			client.RDBSent = true
 			server.AddReplica(client.GetConnection())
 
-			//server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
+			server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
+			server.SendRequest(client.GetConnection(), "PING")
+			server.SendRequest(client.GetConnection(), "REPLCONF", "GETACK", "*")
 		}
 		
 		if result.IsPropagation {
 			server.SendPropagation(result.PropCommand.Name, result.PropCommand.Args)
+		}
+
+		if client.MasterConnection() {
+			client.AddOffset(parser.GetOffset())
 		}
 	}
 }

@@ -1,9 +1,15 @@
 package clients
 
-import "net"
+import (
+	"net"
+
+	"github.com/codecrafters-io/redis-starter-go/app/resp"
+)
 
 type Client struct {
 	connection net.Conn
+	parser *resp.Parser
+	offset int
 	inTx    bool
 	txQueue []CommandQueue
 	replica bool
@@ -12,9 +18,27 @@ type Client struct {
 }
 
 func New(conn net.Conn) *Client {
+	parser := resp.New(conn)
 	return &Client{
 		connection: conn,
+		parser: parser,
 	}
+}
+
+func (c *Client) AddOffset(v int) {
+	c.offset += v
+}
+
+func (c Client) GetOffset() int {
+	return c.offset
+}
+
+func (c *Client) SetParser(p *resp.Parser)  {
+	c.parser = p
+}
+
+func (c *Client) GetParser() *resp.Parser {
+	return c.parser
 }
 
 func (c *Client) GetConnection() net.Conn {
