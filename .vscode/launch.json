@@ -11,10 +11,12 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/app",
-      // "args": [
-      //   "--port=6380",
-      //   "--replicaof=localhost 6379"
-      // ]
+      "args": [
+        // "--port=6380",
+        // "--replicaof=localhost 6379",
+        "--dir=/tmp/redis-files",
+        "--dbfilename=dump.rdb"
+      ]
     }
   ]
 }

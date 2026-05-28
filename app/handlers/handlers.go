@@ -27,6 +27,7 @@ const (
 	REPLCONF   = "REPLCONF"
 	PSYNC   = "PSYNC"
 	WAIT   = "WAIT"
+	CONFIG = "CONFIG"
 )
 
 type Command interface {

@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/base64"
-	"flag"
 	"fmt"
 	"net"
 	"os"
@@ -32,11 +31,8 @@ type Server struct {
 }
 func New(db *database.DB) *Server {
 	config := NewConfig()
-	port := flag.String("port", "6379", "redis port")
-	replicaOf := flag.String("replicaof", "", "repica parameter")
-	flag.Parse()
 
-	replicaData := strings.Split(*replicaOf, " ")
+	replicaData := strings.Split(config.ReplicaOf, " ")
 	var masterHost string
 	var MasterPort string
 	if len(replicaData) > 1 {
@@ -45,13 +41,13 @@ func New(db *database.DB) *Server {
 	}
 	
 	role := MASTER_ROLE
-	if *replicaOf != "" {
+	if config.ReplicaOf != "" {
 		role = SLAVE_ROLE
 	}
 	return &Server{
 		db: db,
 		config: config,
-		Port: *port,
+		Port: config.Port,
 		Role: role,
 		MasterHost: masterHost,
 		MasterPort: MasterPort,
