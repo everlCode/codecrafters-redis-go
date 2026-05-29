@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
+	"github.com/codecrafters-io/redis-starter-go/app/config"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -19,7 +20,7 @@ const (
 
 type Server struct {
 	db *database.DB
-	config *Config
+	config *config.Config
 	Port string
 	Role string
 	Replicas []*Replica
@@ -29,9 +30,10 @@ type Server struct {
 	MasterConnection net.Conn
 	masterOffset int
 }
-func New(db *database.DB) *Server {
-	config := NewConfig()
-
+func New() *Server {
+	config := config.New()
+	db := database.New(config)
+	
 	replicaData := strings.Split(config.ReplicaOf, " ")
 	var masterHost string
 	var MasterPort string
@@ -44,6 +46,7 @@ func New(db *database.DB) *Server {
 	if config.ReplicaOf != "" {
 		role = SLAVE_ROLE
 	}
+
 	return &Server{
 		db: db,
 		config: config,
@@ -237,7 +240,7 @@ func (s *Server) GetDB() *database.DB {
 	return s.db
 }
 
-func (s *Server) GetConfig() *Config {
+func (s *Server) GetConfig() *config.Config {
 	return s.config
 }
 

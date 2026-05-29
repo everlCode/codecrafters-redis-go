@@ -3,6 +3,9 @@ package database
 import (
 	"sync"
 	"time"
+
+	"github.com/codecrafters-io/redis-starter-go/app/config"
+	"github.com/codecrafters-io/redis-starter-go/app/rdb"
 )
 
 const (
@@ -23,11 +26,20 @@ type Waiter struct {
 	Timeout time.Time
 }
 
-func New() *DB {
-	return &DB{
+func New(config *config.Config) *DB {
+	rd := rdb.New(config)
+	var data []rdb.Value
+	if rd != nil {
+		data = rd.Read()
+	}
+	
+	db :=  &DB{
 		sets:    make(map[string]Entry),
 		waiters: make(map[string][]*Waiter),
 	}
+	db.ImportRDB(data)
+
+	return db
 }
 
 func (db *DB) Set(key string, value Entry) {
@@ -61,6 +73,10 @@ func (db *DB) Get(key string) (Entry, bool) {
 	return value, ok
 }
 
+func (db *DB) GetAll() map[string]Entry {
+	return db.sets
+}
+
 func (db *DB) IsWaiterForKeyExist(key string) bool {
 	_, ok := db.waiters[key]
 
@@ -89,6 +105,19 @@ func (db *DB) PushWaiter(key string, time time.Time) chan Entry {
 	db.waiters[key] = append(db.waiters[key], &w)
 
 	return ch
+}
+
+func (db *DB) ImportRDB(data []rdb.Value) {
+	for _, v := range data {
+		var entry Entry
+		switch v.Type {
+		case rdb.STRING:
+			val, _ := v.Value.(string)
+			entry = String(val)
+		
+		}
+		db.Set(v.Key, entry)	
+	}
 }
 
 func Array(data []string) Entry {

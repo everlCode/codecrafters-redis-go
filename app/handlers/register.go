@@ -32,6 +32,7 @@ func NewRegister() *Register {
 	register.Add(PSYNC, &PsyncCommand{})
 	register.Add(WAIT, &WaitCommand{})
 	register.Add(CONFIG, &ConfigCommand{})
+	register.Add(KEYS, &KeysCommand{})
 
 	return register
 }

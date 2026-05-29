@@ -1,4 +1,4 @@
-package server
+package config
 
 import "flag"
 
@@ -9,11 +9,11 @@ type Config struct {
 	ReplicaOf string
 }
 
-func NewConfig() *Config {
+func New() *Config {
 	port := flag.String("port", "6379", "redis port")
 	replicaOf := flag.String("replicaof", "", "repica parameter")
-	dir := flag.String("dir", "/tmp/redis-data", "dir")
-	dbfilename := flag.String("dbfilename", "dump.rdb", "file name")
+	dir := flag.String("dir", "", "dir")
+	dbfilename := flag.String("dbfilename", "", "file name")
 	flag.Parse()
 
 	return &Config{

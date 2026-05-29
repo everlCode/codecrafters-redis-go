@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
-	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/dispatcher"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 	"github.com/codecrafters-io/redis-starter-go/app/server"
@@ -18,8 +17,7 @@ var _ = net.Listen
 var _ = os.Exit
 
 func main() {
-	db := database.New()
-	s := server.New(db)
+	s := server.New()
 	listener := s.Start()
 
 	var masterClient *clients.Client

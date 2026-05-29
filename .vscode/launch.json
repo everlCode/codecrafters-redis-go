@@ -14,7 +14,7 @@
       "args": [
         // "--port=6380",
         // "--replicaof=localhost 6379",
-        "--dir=/tmp/redis-files",
+        "--dir=/home/nick/codecrafters-redis-go/app",
         "--dbfilename=dump.rdb"
       ]
     }

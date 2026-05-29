@@ -28,6 +28,7 @@ const (
 	PSYNC   = "PSYNC"
 	WAIT   = "WAIT"
 	CONFIG = "CONFIG"
+	KEYS = "KEYS"
 )
 
 type Command interface {
