@@ -23,7 +23,6 @@ type Value struct {
 
 type EncodedValue struct {
     Value string
-    IsInteger  bool
 }
 
 const (
@@ -148,7 +147,7 @@ func (rdb *RDB) readStringValue() Value {
 	return Value{
 		Type: STRING,
 		Key: keyName.Value,
-		Value: value,
+		Value: value.Value,
 		Expire: expire,
 	}
 }
@@ -229,15 +228,15 @@ func (rdb *RDB) readEncodedValue() EncodedValue {
 		switch b {
 		case 0xC0:
 			v := int8(rdb.readByte())
-            return EncodedValue{Value: strconv.Itoa(int(v)), IsInteger: true}
+            return EncodedValue{Value: strconv.Itoa(int(v))}
 		case 0xC1:
 			bytes := rdb.readBytes(2)
             v := int16(binary.LittleEndian.Uint16(bytes))
-			return EncodedValue{Value: strconv.Itoa(int(v)), IsInteger: true}
+			return EncodedValue{Value: strconv.Itoa(int(v))}
 		case 0xC2:
 			bytes := rdb.readBytes(4)
             v := int32(binary.LittleEndian.Uint32(bytes))
-            return EncodedValue{Value: strconv.Itoa(int(v)), IsInteger: true}
+            return EncodedValue{Value: strconv.Itoa(int(v))}
 		}
 		value = strconv.Itoa(v)
 	} else {
