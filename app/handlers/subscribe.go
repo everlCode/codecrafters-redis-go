@@ -19,10 +19,9 @@ func (c SubscribeCommand) Execute(args []string, server *server.Server, client *
 		channel = pubsub.NewChannel(chanelName)
 	}
 
-	ps.Subscribe(channel, client.GetConnection())
+	channel.Subscribe(client.GetConnection())
+	ps.AddChannel(channel)
 	client.Subscribe(channel)
 	
-	
-
 	return Response(resp.Array([]any{"subscribe", chanelName, len(client.GetSubscribtions())}))
 }

@@ -16,6 +16,9 @@ func (c PublishCommand) Execute(args []string, server *server.Server, client *cl
 	channelName := args[0]
 	content := args[1]
 	channel := server.Pubsub.GetChannel(channelName)
+	if channel == nil {
+		return Response(resp.Integer(0))
+	}
 
 	for _, v := range channel.Connections {
 		server.SendRequest(v, "message", channelName, content)

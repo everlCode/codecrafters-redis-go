@@ -16,7 +16,7 @@ type Client struct {
 	replica          bool
 	RDBSent          bool
 	masterConnection bool
-	subscribtions    []*pubsub.Channel
+	channels    map[string]*pubsub.Channel
 }
 
 func New(conn net.Conn) *Client {
@@ -24,19 +24,28 @@ func New(conn net.Conn) *Client {
 	return &Client{
 		connection: conn,
 		parser:     parser,
+		channels: make(map[string]*pubsub.Channel),
 	}
 }
 
-func (c *Client) Subscribe(subscribe *pubsub.Channel) {
-	c.subscribtions = append(c.subscribtions, subscribe)
+func (c *Client) Subscribe(channel *pubsub.Channel) {
+	c.channels[channel.Name] = channel
 }
 
-func (c *Client) GetSubscribtions() []*pubsub.Channel {
-	return c.subscribtions
+func (c *Client) Unbscribe(channelName string) {
+	_, ok := c.channels[channelName]
+	if !ok {
+		return
+	}
+	delete(c.channels, channelName)
+}
+
+func (c *Client) GetSubscribtions() map[string]*pubsub.Channel {
+	return c.channels
 }
 
 func (c *Client) IsSubscriber() bool {
-	return len(c.subscribtions) > 0
+	return len(c.channels) > 0
 }
 
 func (c *Client) SetOffset(v int) {

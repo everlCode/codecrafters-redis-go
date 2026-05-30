@@ -31,6 +31,7 @@ const (
 	KEYS = "KEYS"
 	SUBSCRIBE = "SUBSCRIBE"
 	PUBLISH = "PUBLISH"
+	UNSUBSCRIBE = "UNSUBSCRIBE"
 )
 
 type Command interface {

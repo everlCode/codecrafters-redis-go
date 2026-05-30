@@ -23,8 +23,7 @@ func NewChannel(name string) *Channel {
 	}
 }
 
-func (ps *Pubsub) Subscribe(channel *Channel, conn net.Conn) {
-	channel.Connections = append(channel.Connections, conn)
+func (ps *Pubsub) AddChannel(channel *Channel)  {
 	ps.chanels[channel.Name] = channel
 }
 
@@ -39,4 +38,16 @@ func (ps *Pubsub) GetChannel(name string) *Channel {
 	}
 
 	return chanel
+}
+
+func (channel *Channel) Subscribe(conn net.Conn) {
+	channel.Connections = append(channel.Connections, conn)
+}
+
+func (channel *Channel) Unbscribe(conn net.Conn) {
+	for i, v := range channel.Connections {
+		if v == conn {
+			channel.Connections = append(channel.Connections[:i], channel.Connections[i+1:]...)
+		}
+	}
 }
