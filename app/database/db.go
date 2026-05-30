@@ -114,6 +114,7 @@ func (db *DB) ImportRDB(data []rdb.Value) {
 		case rdb.STRING:
 			val, _ := v.Value.(string)
 			entry = String(val)
+			entry.Expires = int64(v.Expire)
 		
 		}
 		db.Set(v.Key, entry)	
@@ -129,5 +130,7 @@ func Integer(data int) Entry {
 }
 
 func String(data string) Entry {
-	return Entry{value: data}
+	return Entry{
+		value: data,
+	}
 }

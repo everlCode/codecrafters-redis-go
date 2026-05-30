@@ -18,7 +18,7 @@ type Value struct {
 	Type int
 	Key string
 	Value any
-	Expire int
+	Expire int64
 }
 
 type EncodedValue struct {
@@ -78,7 +78,7 @@ func (rdb *RDB) readMetadata() map[string]string {
 
 		metaData[param.Value] = value.Value
 	}
-	
+
 	return metaData
 }
 
@@ -120,6 +120,13 @@ func (rdb *RDB) readEnd() uint64 {
 }
 
 func (rdb *RDB) readDatabaseValue() Value {
+	var expire int64 = 0
+	b := rdb.peek()
+	if b == 0XFC || b == 0XFD {
+		b := rdb.readByte()
+		expire =  rdb.readTimestamp(b)
+	}
+
 	_type, err := rdb.Reader.ReadByte()
 	if err != nil {
 		panic(err)
@@ -130,25 +137,36 @@ func (rdb *RDB) readDatabaseValue() Value {
 	case STRING:
 		v = rdb.readStringValue()
 	}
+	v.Expire = expire
 
 	return v
+}
+
+func (rdb *RDB) readTimestamp(b byte) int64 {
+	var result int64
+	switch b {
+	case 0XFC:
+		b := rdb.readBytes(8)
+		d := binary.LittleEndian.Uint64(b)
+		result = int64(d)
+		 
+	case 0XFD:
+		b := rdb.readBytes(4)
+		d := binary.LittleEndian.Uint32(b)
+		result = int64(d)
+	}
+	
+	return result
 }
 
 func (rdb *RDB) readStringValue() Value {
 	keyName := rdb.readEncodedValue()
 	value := rdb.readEncodedValue()
 
-	var expire int = 0
-	b := rdb.peek()
-	if b == 0XFC || b == 0XFD {
-		expire, _ =  rdb.readLenght()
-	}
-
 	return Value{
 		Type: STRING,
 		Key: keyName.Value,
 		Value: value.Value,
-		Expire: expire,
 	}
 }
 
@@ -184,8 +202,6 @@ func (rdb *RDB) readBytes(n int) []byte {
 func (rdb *RDB) readLenght() (int, bool) {
 	var b byte
 	b = rdb.peek()
-	c := b >> 6
-	fmt.Println(c)
 
 	var lenght int
 	var isSpecial bool
@@ -210,7 +226,7 @@ func (rdb *RDB) readLenght() (int, bool) {
 
 		lenght = int(value)
 	case 0b11:
-		rdb.readByte()
+		//rdb.readByte()
 		return 0, true
 		
 	}
@@ -220,11 +236,9 @@ func (rdb *RDB) readLenght() (int, bool) {
 
 func (rdb *RDB) readEncodedValue() EncodedValue {
 	lenght, isSpecial := rdb.readLenght()
-	bytes := rdb.readBytes(lenght)
 	var value string
 	if isSpecial {
 		b := rdb.readByte()
-		var v int
 		switch b {
 		case 0xC0:
 			v := int8(rdb.readByte())
@@ -237,9 +251,11 @@ func (rdb *RDB) readEncodedValue() EncodedValue {
 			bytes := rdb.readBytes(4)
             v := int32(binary.LittleEndian.Uint32(bytes))
             return EncodedValue{Value: strconv.Itoa(int(v))}
+			case 0xC3:
+				fmt.Printf("f")
 		}
-		value = strconv.Itoa(v)
 	} else {
+		bytes := rdb.readBytes(lenght)
 		value = string(bytes)
 	}
 

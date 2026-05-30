@@ -15,7 +15,7 @@
         // "--port=6380",
         // "--replicaof=localhost 6379",
         "--dir=/home/nick/codecrafters-redis-go/app",
-        "--dbfilename=simple.rdb"
+        "--dbfilename=dump.rdb"
       ]
     }
   ]
