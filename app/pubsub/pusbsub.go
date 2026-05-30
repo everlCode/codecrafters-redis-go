@@ -3,27 +3,40 @@ package pubsub
 import "net"
 
 type Pubsub struct {
-	subscribtions []*Subscribtion
+	chanels map[string]*Channel
 }
 
-type Subscribtion struct {
-	Conn net.Conn
+type Channel struct {
+	Name        string
+	Connections []net.Conn
 }
 
 func New() *Pubsub {
-	return &Pubsub{}
-}
-
-func NewSubscription(conn net.Conn) *Subscribtion {
-	return &Subscribtion{
-		Conn: conn,
+	return &Pubsub{
+		chanels: make(map[string]*Channel),
 	}
 }
 
-func (ps *Pubsub) AddSubscription(subscription *Subscribtion) {
-	ps.subscribtions = append(ps.subscribtions, subscription)
+func NewChannel(name string) *Channel {
+	return &Channel{
+		Name: name,
+	}
 }
 
-func (ps *Pubsub) GetSubscription() []*Subscribtion {
-	return ps.subscribtions
+func (ps *Pubsub) Subscribe(channel *Channel, conn net.Conn) {
+	channel.Connections = append(channel.Connections, conn)
+	ps.chanels[channel.Name] = channel
+}
+
+func (ps *Pubsub) GetChannels() map[string]*Channel {
+	return ps.chanels
+}
+
+func (ps *Pubsub) GetChannel(name string) *Channel {
+	chanel, ok := ps.chanels[name]
+	if !ok {
+		return nil
+	}
+
+	return chanel
 }

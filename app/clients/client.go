@@ -8,30 +8,30 @@ import (
 )
 
 type Client struct {
-	connection net.Conn
-	parser *resp.Parser
-	offset int
-	inTx    bool
-	txQueue []CommandQueue
-	replica bool
-	RDBSent bool
+	connection       net.Conn
+	parser           *resp.Parser
+	offset           int
+	inTx             bool
+	txQueue          []CommandQueue
+	replica          bool
+	RDBSent          bool
 	masterConnection bool
-	subscribtions []*pubsub.Subscribtion
+	subscribtions    []*pubsub.Channel
 }
 
 func New(conn net.Conn) *Client {
 	parser := resp.New(conn)
 	return &Client{
 		connection: conn,
-		parser: parser,
+		parser:     parser,
 	}
 }
 
-func (c *Client) Subscribe(subscribe *pubsub.Subscribtion) {
+func (c *Client) Subscribe(subscribe *pubsub.Channel) {
 	c.subscribtions = append(c.subscribtions, subscribe)
 }
 
-func (c *Client) GetSubscribtions() []*pubsub.Subscribtion {
+func (c *Client) GetSubscribtions() []*pubsub.Channel {
 	return c.subscribtions
 }
 
@@ -53,7 +53,7 @@ func (c Client) GetOffset() int {
 	return c.offset
 }
 
-func (c *Client) SetParser(p *resp.Parser)  {
+func (c *Client) SetParser(p *resp.Parser) {
 	c.parser = p
 }
 

@@ -30,6 +30,7 @@ const (
 	CONFIG = "CONFIG"
 	KEYS = "KEYS"
 	SUBSCRIBE = "SUBSCRIBE"
+	PUBLISH = "PUBLISH"
 )
 
 type Command interface {

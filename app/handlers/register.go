@@ -34,6 +34,7 @@ func NewRegister() *Register {
 	register.Add(CONFIG, &ConfigCommand{})
 	register.Add(KEYS, &KeysCommand{})
 	register.Add(SUBSCRIBE, &SubscribeCommand{})
+	register.Add(PUBLISH, &PublishCommand{})
 
 	return register
 }

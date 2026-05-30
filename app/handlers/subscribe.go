@@ -13,11 +13,16 @@ type SubscribeCommand struct {
 func (c SubscribeCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	chanelName := args[0]
 	ps := server.Pubsub
-	subscription := pubsub.NewSubscription(client.GetConnection())
-	ps.AddSubscription(subscription)
+	var channel *pubsub.Channel
+	channel = ps.GetChannel(chanelName)
+	if channel == nil {
+		channel = pubsub.NewChannel(chanelName)
+	}
 
-	client.Subscribe(subscription)
-	subscriptions := client.GetSubscribtions()
+	ps.Subscribe(channel, client.GetConnection())
+	client.Subscribe(channel)
+	
+	
 
-	return Response(resp.Array([]any{"subscribe", chanelName, len(subscriptions)}))
+	return Response(resp.Array([]any{"subscribe", chanelName, len(client.GetSubscribtions())}))
 }
