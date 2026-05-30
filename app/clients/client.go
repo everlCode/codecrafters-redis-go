@@ -3,6 +3,7 @@ package clients
 import (
 	"net"
 
+	"github.com/codecrafters-io/redis-starter-go/app/pubsub"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
@@ -15,6 +16,7 @@ type Client struct {
 	replica bool
 	RDBSent bool
 	masterConnection bool
+	subscribtions []*pubsub.Subscribtion
 }
 
 func New(conn net.Conn) *Client {
@@ -23,6 +25,14 @@ func New(conn net.Conn) *Client {
 		connection: conn,
 		parser: parser,
 	}
+}
+
+func (c *Client) Subscribe(subscribe *pubsub.Subscribtion) {
+	c.subscribtions = append(c.subscribtions, subscribe)
+}
+
+func (c *Client) GetSubscribtions() []*pubsub.Subscribtion {
+	return c.subscribtions
 }
 
 func (c *Client) SetOffset(v int) {

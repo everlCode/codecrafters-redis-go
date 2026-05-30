@@ -33,6 +33,7 @@ func NewRegister() *Register {
 	register.Add(WAIT, &WaitCommand{})
 	register.Add(CONFIG, &ConfigCommand{})
 	register.Add(KEYS, &KeysCommand{})
+	register.Add(SUBSCRIBE, &SubscribeCommand{})
 
 	return register
 }

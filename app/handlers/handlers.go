@@ -29,6 +29,7 @@ const (
 	WAIT   = "WAIT"
 	CONFIG = "CONFIG"
 	KEYS = "KEYS"
+	SUBSCRIBE = "SUBSCRIBE"
 )
 
 type Command interface {
