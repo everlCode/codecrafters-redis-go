@@ -183,8 +183,7 @@ func (s *Server) mustReadOk(parser *resp.Parser) {
 	}
 }
 
-func (s *Server) SendRequest(client *clients.Client, arguments ...string) {
-	conn := client.GetConnection()
+func (s *Server) SendRequest(conn net.Conn, arguments ...string) {
 	values := make([]any, len(arguments))
 
 	for i, arg := range arguments {
@@ -193,7 +192,6 @@ func (s *Server) SendRequest(client *clients.Client, arguments ...string) {
 
 	_, err := conn.Write(resp.Array(values).Marshal())
 	if err != nil {
-		fmt.Println(err.Error())
 		panic(err.Error())
 	}
 }

@@ -41,7 +41,7 @@ func (c WaitCommand) Execute(args []string, server *server.Server, client *clien
 		
 		for i := 0; i < len(replicas); i++ {
 			replic := replicas[i]
-			server.SendRequest(replic.GetClient(), "REPLCONF", "GETACK", "*")
+			server.SendRequest(replic.GetClient().GetConnection(), "REPLCONF", "GETACK", "*")
 		}
 
 		now := time.Now()

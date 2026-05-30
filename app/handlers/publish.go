@@ -14,8 +14,12 @@ func (c PublishCommand) Execute(args []string, server *server.Server, client *cl
 		return Response(resp.Error("Too few args!"))
 	}
 	channelName := args[0]
-	// content := args[1]
+	content := args[1]
 	channel := server.Pubsub.GetChannel(channelName)
+
+	for _, v := range channel.Connections {
+		server.SendRequest(v, "message", channelName, content)
+	}
 
 	return Response(resp.Integer(len(channel.Connections)))
 }
