@@ -35,6 +35,10 @@ func (c *Client) GetSubscribtions() []*pubsub.Subscribtion {
 	return c.subscribtions
 }
 
+func (c *Client) IsSubscriber() bool {
+	return len(c.subscribtions) > 0
+}
+
 func (c *Client) SetOffset(v int) {
 	c.parser.SetOffset(v)
 	c.offset = v

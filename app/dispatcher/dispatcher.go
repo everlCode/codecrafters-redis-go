@@ -10,9 +10,22 @@ import (
 	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
 
+var pubsubHandlers map[string]int = map[string]int{
+	"SUBSCRIBE": 0,
+	"UNSUBSCRIBE": 0,
+	"PSUBSCRIBE": 0,
+	"PUNSUBSCRIBE": 0,
+	"PING": 0,
+	"QUIT": 0,
+}
+
 func Dispatch(args []string, server *server.Server, client *clients.Client) handlers.CommandResponse {
 	register := handlers.NewRegister()
 	handlerName := strings.ToUpper(args[0])
+
+	if client.IsSubscriber() && !isPubsubHandler(handlerName) {
+		return handlers.Response(resp.Error("ERR Can't execute '" + handlerName + "': only (P|S)SUBSCRIBE / (P|S)UNSUBSCRIBE / PING / QUIT / RESET are allowed in this context"))
+	}
 
 	switch handlerName {
 	case "MULTI":
@@ -57,4 +70,10 @@ func Dispatch(args []string, server *server.Server, client *clients.Client) hand
 
 		return result
 	}
+}
+
+func isPubsubHandler(handlerName string) bool {
+	_, ok := pubsubHandlers[handlerName]
+
+	return ok
 }
