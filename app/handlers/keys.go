@@ -18,5 +18,5 @@ func (c KeysCommand) Execute(args []string, server *server.Server, client *clien
 		keys = append(keys, key)
 	}
 
-	return Response(resp.ArrayString(keys))
+	return Response(resp.ArrayString(keys...))
 }

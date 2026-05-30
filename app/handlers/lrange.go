@@ -64,5 +64,5 @@ func (c LRangeCommand) Execute(args []string, server *server.Server, client *cli
 		data = data[start:end]
 	}
 
-	return Response(resp.ArrayString(data))
+	return Response(resp.ArrayString(data...))
 }

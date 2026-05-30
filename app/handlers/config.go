@@ -27,5 +27,5 @@ func (c ConfigCommand) Execute(args []string, server *server.Server, client *cli
 	value := v.(string)
 	
 
-	return Response(resp.ArrayString([]string{param, value}))
+	return Response(resp.ArrayString(param, value))
 }

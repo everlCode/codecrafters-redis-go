@@ -35,7 +35,7 @@ func (c BlPopCommand) Execute(args []string, server *server.Server, client *clie
 				entry.Set(value[1:])
 				db.Set(key, entry)
 
-				response = resp.ArrayString([]string{key, firstValue})
+				response = resp.ArrayString(key, firstValue)
 			}
 		} else {
 			response = resp.NilArray()
@@ -61,5 +61,5 @@ func (c BlPopCommand) Execute(args []string, server *server.Server, client *clie
 		data = []string{key, data[0]}
 	}
 
-	return Response(resp.ArrayString(data))
+	return Response(resp.ArrayString(data...))
 }

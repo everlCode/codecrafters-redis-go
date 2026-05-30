@@ -201,7 +201,7 @@ func (v Value) Marshal() []byte {
 	case STRING:
 		return []byte(STRING + v.String + CRLF)
 	case BULK:
-		if v.Bulk == "" {
+		if v.Bulk == "NULLBULK" {
 			return []byte(BULK + "-1" + CRLF)
 		}
 		capacity := len(v.Bulk)
@@ -238,7 +238,7 @@ func Bulk(value string) Value {
 }
 
 func NullBulk() Value {
-	return Value{Type: BULK, Bulk: ""}
+	return Value{Type: BULK, Bulk: "NULLBULK"}
 }
 
 func Integer(value int) Value {
@@ -272,7 +272,7 @@ func Array(value []any) Value {
 	return Value{Type: ARRAY, Array: data}
 }
 
-func ArrayString(value []string) Value {
+func ArrayString(value ...string) Value {
 	var data []Value = []Value{}
 	for i := 0; i < len(value); i++ {
 		data = append(data, Value{Type: BULK, Bulk: value[i]})

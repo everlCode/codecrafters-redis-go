@@ -229,7 +229,7 @@ func (s *Server) SendPropagation(
 		args...,
 	)
 
-	data := resp.ArrayString(request).Marshal()
+	data := resp.ArrayString(request...).Marshal()
 	server.AddOffset(len(data))
 
 	for _, replica := range s.Replicas {

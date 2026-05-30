@@ -43,7 +43,7 @@ func (c LPopCommand) Execute(args []string, server *server.Server, client *clien
 		response.Bulk = v
 	} else {
 		v := value[:count]
-		response = resp.ArrayString(v)
+		response = resp.ArrayString(v...)
 	}
 	entry.Set(value[count:])
 
