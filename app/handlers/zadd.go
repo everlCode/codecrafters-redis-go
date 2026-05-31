@@ -25,7 +25,6 @@ func (c ZaddCommand) Execute(args []string, server *server.Server, client *clien
 	}
 	value := args[2]
 
-
 	db := server.GetDB()
 	entry, ok := db.Get(key)
 	if !ok {
@@ -36,9 +35,11 @@ func (c ZaddCommand) Execute(args []string, server *server.Server, client *clien
 
 	zset, ok := entry.AsZset()
 	if !ok {
-		return Response(resp.Error("Invalid"))
+		return Response(resp.Error("Key" + key + " doenst sorted set!"))
 	}
-	zset.Add(id, value)
+	isNewValue := zset.Add(id, value)
+	entry.Set(zset)
+	db.Set(key, entry)
 
-	return Response(resp.Integer(len(zset.Set)))
+	return Response(resp.Integer(isNewValue))
 }
