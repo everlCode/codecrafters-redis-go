@@ -44,8 +44,8 @@ func (c XaddCommand) Execute(args []string, server *server.Server, client *clien
 
 		entry.Set(stream)
 	} else {
-		stream = database.CreateStream()
-		entry = database.Entry{}
+		stream = database.NewStream()
+		entry = *database.NewEntry()
 		entry.Set(stream)
 	}
 	generatedId := c.generateId(id, lastId)

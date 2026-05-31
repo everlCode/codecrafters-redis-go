@@ -36,6 +36,7 @@ func NewRegister() *Register {
 	register.Add(SUBSCRIBE, &SubscribeCommand{})
 	register.Add(PUBLISH, &PublishCommand{})
 	register.Add(UNSUBSCRIBE, &UnsubscribeCommand{})
+	register.Add(ZADD, &ZaddCommand{})
 
 	return register
 }

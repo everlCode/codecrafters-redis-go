@@ -10,6 +10,10 @@ type Entry struct {
 	Expires int64
 }
 
+func NewEntry() *Entry {
+	return &Entry{}
+}
+
 func (v Entry) AsString() string {
 	a, ok := v.value.(string)
 	if !ok {
@@ -33,6 +37,11 @@ func (v Entry) AsArray() []string {
 
 func (v Entry) AsStream() (*Stream, bool) {
 	a, ok := v.value.(*Stream)
+	return a, ok
+}
+
+func (v Entry) AsZset() (*Zset, bool) {
+	a, ok := v.value.(*Zset)
 	return a, ok
 }
 

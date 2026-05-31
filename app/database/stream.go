@@ -63,14 +63,8 @@ func (entry StreamEntry) GeData() map[string]string {
 	return entry.data
 }
 
-func CreateStream() *Stream {
-	stream := NewStream()
-
-	return &stream
-}
-
-func NewStream() Stream {
-	return Stream{
+func NewStream() *Stream {
+	return &Stream{
 		entries: []StreamEntry{},
 	}
 }
