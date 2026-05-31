@@ -33,6 +33,7 @@ const (
 	PUBLISH = "PUBLISH"
 	UNSUBSCRIBE = "UNSUBSCRIBE"
 	ZADD = "ZADD"
+	ZRANK = "ZRANK"
 )
 
 type Command interface {
