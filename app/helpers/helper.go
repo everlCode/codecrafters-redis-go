@@ -39,3 +39,35 @@ func IncrementStreamId(id string) string {
 
 	return strings.Join([]string{parts[0], indetificatorString}, "-")
 }
+
+func GetDataByStartEnd[T any](data []T, start int, end int) []T {
+	lenght := len(data)
+	if start < 0 {
+		start = lenght + start
+		if start < 0 {
+			start = 0
+		}
+	}
+
+	if end < -1 {
+		end = lenght + end + 1
+	} else if end < lenght && end > 0 {
+		end += 1
+	}
+
+	if start > end && end >= 0 {
+		return []T{}
+	}
+
+	if start >= lenght {
+		return []T{}
+	}
+
+	if end == -1 || end >= lenght || end == 0 {
+		data = data[start:]
+	} else {
+		data = data[start:end]
+	}
+
+	return data
+}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
+	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
@@ -40,23 +41,12 @@ func (c ZrangeCommand) Execute(args []string, server *server.Server, client *cli
 		return Response(resp.EmptyArray())
 	}
 
-	lenght := len(zset.Set)
-	if start >= lenght || start > stop {
-		return Response(resp.EmptyArray())
-	}
-	
-	stop += 1
-	if stop > lenght {
-		stop = lenght
-	}
-
 	var result []string
 	var set []database.Zvalue
 
-	if stop == lenght {
-		set = zset.Set[start:]
-	} else {
-		set = zset.Set[start:stop]
+	set = helpers.GetDataByStartEnd(zset.Set, start, stop)
+	if len(set) == 0 {
+		return Response(resp.EmptyArray())
 	}
 	
 	for _, v := range set {

@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
+	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
@@ -30,38 +31,14 @@ func (c LRangeCommand) Execute(args []string, server *server.Server, client *cli
 	}
 
 	entry, ok := db.Get(key)
-	data := entry.AsArray()
-	lenght := len(data)
-
-	if start < 0 {
-		start = lenght + start
-		if start < 0 {
-			start = 0
-		}
-	}
-
-	if end < -1 {
-		end = lenght + end + 1
-	} else if end < lenght && end > 0 {
-		end += 1
-	}
-
-	if start > end && end >= 0 {
-		return Response(resp.EmptyArray())
-	}
-
 	if !ok || !entry.IsArray() {
 		return Response(resp.EmptyArray())
 	}
+	data := entry.AsArray()
 
-	if start >= lenght {
+	data = helpers.GetDataByStartEnd(data, start, end)
+	if len(data) == 0 {
 		return Response(resp.EmptyArray())
-	}
-
-	if end == -1 || end >= lenght || end == 0 {
-		data = data[start:]
-	} else {
-		data = data[start:end]
 	}
 
 	return Response(resp.ArrayString(data...))
