@@ -7,35 +7,36 @@ import (
 )
 
 const (
-	PING    = "PING"
-	SET     = "SET"
-	GET     = "GET"
-	ECHO    = "ECHO"
-	COMMAND = "COMMAND"
-	LPUSH   = "LPUSH"
-	RPUSH   = "RPUSH"
-	LRANGE  = "LRANGE"
-	LLEN    = "LLEN"
-	LPOP    = "LPOP"
-	BLPOP   = "BLPOP"
-	TYPE    = "TYPE"
-	XADD    = "XADD"
-	XRANGE  = "XRANGE"
-	XREAD   = "XREAD"
-	INCR   = "INCR"
-	INFO   = "INFO"
-	REPLCONF   = "REPLCONF"
-	PSYNC   = "PSYNC"
-	WAIT   = "WAIT"
-	CONFIG = "CONFIG"
-	KEYS = "KEYS"
-	SUBSCRIBE = "SUBSCRIBE"
-	PUBLISH = "PUBLISH"
+	PING        = "PING"
+	SET         = "SET"
+	GET         = "GET"
+	ECHO        = "ECHO"
+	COMMAND     = "COMMAND"
+	LPUSH       = "LPUSH"
+	RPUSH       = "RPUSH"
+	LRANGE      = "LRANGE"
+	LLEN        = "LLEN"
+	LPOP        = "LPOP"
+	BLPOP       = "BLPOP"
+	TYPE        = "TYPE"
+	XADD        = "XADD"
+	XRANGE      = "XRANGE"
+	XREAD       = "XREAD"
+	INCR        = "INCR"
+	INFO        = "INFO"
+	REPLCONF    = "REPLCONF"
+	PSYNC       = "PSYNC"
+	WAIT        = "WAIT"
+	CONFIG      = "CONFIG"
+	KEYS        = "KEYS"
+	SUBSCRIBE   = "SUBSCRIBE"
+	PUBLISH     = "PUBLISH"
 	UNSUBSCRIBE = "UNSUBSCRIBE"
-	ZADD = "ZADD"
-	ZRANK = "ZRANK"
-	ZRANGE = "ZRANGE"
-	ZCARD = "ZCARD"
+	ZADD        = "ZADD"
+	ZRANK       = "ZRANK"
+	ZRANGE      = "ZRANGE"
+	ZCARD      = "ZCARD"
+	ZSCORE       = "ZSCORE"
 )
 
 type Command interface {
@@ -47,10 +48,10 @@ type Command interface {
 }
 
 type CommandResponse struct {
-	value resp.Value
+	value         resp.Value
 	IsPropagation bool
-	NeedAnswer bool
-	PropCommand PropagationCommand
+	NeedAnswer    bool
+	PropCommand   PropagationCommand
 }
 
 type PropagationCommand struct {
@@ -75,6 +76,3 @@ func Response(data resp.Value) CommandResponse {
 		value: data,
 	}
 }
-
-
-

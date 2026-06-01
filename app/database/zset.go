@@ -4,11 +4,11 @@ import "slices"
 
 type Zset struct {
 	Keys map[string]*Zvalue
-	Set []Zvalue
+	Set  []Zvalue
 }
 
 type Zvalue struct {
-	Rank float64
+	Score float64
 	Value string
 }
 
@@ -23,17 +23,17 @@ func (z *Zset) Add(rank float64, value string) int {
 	var isNewValue int = 0
 	v, ok := z.Keys[value]
 	if !ok {
-		v = &Zvalue{Rank: rank, Value: value}
+		v = &Zvalue{Score: rank, Value: value}
 		z.Keys[value] = v
 		z.Set = append(z.Set, *v)
 		isNewValue = 1
 	}
-	v.Rank = rank
-	
+	v.Score = rank
+
 	slices.SortFunc(z.Set, func(a, b Zvalue) int {
-		if a.Rank < b.Rank {
+		if a.Score < b.Score {
 			return -1
-		} else if a.Rank == b.Rank {
+		} else if a.Score == b.Score {
 			if a.Value < b.Value {
 				return -1
 			} else {
@@ -63,14 +63,14 @@ func binarySearch(set []Zvalue, searchValue Zvalue) int {
 		return middle
 	}
 	var index int
-	if middleValue.Rank < searchValue.Rank {
+	if middleValue.Score < searchValue.Score {
 		index = binarySearch(set[middle:], searchValue) + middle
-	} else if (middleValue.Rank > searchValue.Rank) {
-		index = binarySearch(set[:middle], searchValue) 
-	} else if (middleValue.Value < searchValue.Value) {
+	} else if middleValue.Score > searchValue.Score {
+		index = binarySearch(set[:middle], searchValue)
+	} else if middleValue.Value < searchValue.Value {
 		index = binarySearch(set[middle:], searchValue) + middle
-	} else if (middleValue.Value > searchValue.Value) {
-		index = binarySearch(set[:middle], searchValue) 
+	} else if middleValue.Value > searchValue.Value {
+		index = binarySearch(set[:middle], searchValue)
 	}
 
 	return index

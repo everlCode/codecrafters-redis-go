@@ -40,6 +40,7 @@ func NewRegister() *Register {
 	register.Add(ZRANK, &ZrankCommand{})
 	register.Add(ZRANGE, &ZrangeCommand{})
 	register.Add(ZCARD, &ZcardCommand{})
+	register.Add(ZSCORE, &ZscoreCommand{})
 
 	return register
 }
