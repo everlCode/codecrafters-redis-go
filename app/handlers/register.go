@@ -39,6 +39,7 @@ func NewRegister() *Register {
 	register.Add(ZADD, &ZaddCommand{})
 	register.Add(ZRANK, &ZrankCommand{})
 	register.Add(ZRANGE, &ZrangeCommand{})
+	register.Add(ZCARD, &ZcardCommand{})
 
 	return register
 }

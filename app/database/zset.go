@@ -24,11 +24,12 @@ func (z *Zset) Add(rank float64, value string) int {
 	v, ok := z.Keys[value]
 	if !ok {
 		v = &Zvalue{Rank: rank, Value: value}
+		z.Keys[value] = v
+		z.Set = append(z.Set, *v)
 		isNewValue = 1
 	}
+	v.Rank = rank
 	
-	z.Keys[value] = v
-	z.Set = append(z.Set, *v)
 	slices.SortFunc(z.Set, func(a, b Zvalue) int {
 		if a.Rank < b.Rank {
 			return -1

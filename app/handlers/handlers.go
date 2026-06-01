@@ -35,6 +35,7 @@ const (
 	ZADD = "ZADD"
 	ZRANK = "ZRANK"
 	ZRANGE = "ZRANGE"
+	ZCARD = "ZCARD"
 )
 
 type Command interface {
