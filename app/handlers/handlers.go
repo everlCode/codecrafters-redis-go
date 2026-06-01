@@ -37,6 +37,7 @@ const (
 	ZRANGE      = "ZRANGE"
 	ZCARD      = "ZCARD"
 	ZSCORE       = "ZSCORE"
+	ZREM       = "ZREM"
 )
 
 type Command interface {

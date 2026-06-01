@@ -47,6 +47,23 @@ func (z *Zset) Add(rank float64, value string) int {
 	return isNewValue
 }
 
+func (z *Zset) Remove(key string) int  {
+	_, ok := z.Keys[key]
+	if !ok {
+		return 0
+	}
+	delete(z.Keys, key)	
+	var set []Zvalue
+	for _, v := range z.Set {
+		if v.Value != key {
+			set = append(set, v)
+		}
+	}
+	z.Set = set
+
+	return 1
+}
+
 func (z *Zset) GetIndex(value string) (int, bool) {
 	v, ok := z.Keys[value]
 	if !ok {
@@ -55,6 +72,8 @@ func (z *Zset) GetIndex(value string) (int, bool) {
 
 	return binarySearch(z.Set, *v), true
 }
+
+
 
 func binarySearch(set []Zvalue, searchValue Zvalue) int {
 	middle := len(set) / 2
