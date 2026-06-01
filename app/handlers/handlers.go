@@ -34,6 +34,7 @@ const (
 	UNSUBSCRIBE = "UNSUBSCRIBE"
 	ZADD = "ZADD"
 	ZRANK = "ZRANK"
+	ZRANGE = "ZRANGE"
 )
 
 type Command interface {
