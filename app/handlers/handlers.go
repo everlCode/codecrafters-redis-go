@@ -38,6 +38,7 @@ const (
 	ZCARD      = "ZCARD"
 	ZSCORE       = "ZSCORE"
 	ZREM       = "ZREM"
+	GEOADD       = "GEOADD"
 )
 
 type Command interface {

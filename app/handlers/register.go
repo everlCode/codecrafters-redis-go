@@ -42,6 +42,7 @@ func NewRegister() *Register {
 	register.Add(ZCARD, &ZcardCommand{})
 	register.Add(ZSCORE, &ZscoreCommand{})
 	register.Add(ZREM, &ZremCommand{})
+	register.Add(GEOADD, &GeoaddCommand{})
 
 	return register
 }
