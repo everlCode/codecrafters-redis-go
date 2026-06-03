@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
+	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
@@ -17,10 +18,10 @@ func (c GeoaddCommand) Execute(args []string, server *server.Server, client *cli
 		return Response(resp.Error("Too few args!"))
 	}
 	var longtitude, latitude float64
-	//key := args[0]
+	key := args[0]
 	longtitudeString := args[1]
 	latitudeString := args[2]
-	//member := args[3]
+	member := args[3]
 
 	longtitude, err := strconv.ParseFloat(longtitudeString, 64)
 	if err != nil {
@@ -36,6 +37,22 @@ func (c GeoaddCommand) Execute(args []string, server *server.Server, client *cli
 	if err != nil {
 		return Response(resp.Error(err.Error()))
 	}
+
+	db := server.GetDB()
+	entry, ok := db.Get(key)
+	if !ok {
+		entry = *database.NewEntry()
+		zset := database.NewZset()
+		entry.Set(zset)
+		
+	}
+	zset, ok := entry.AsZset()
+	if !ok {
+		return Response(resp.Integer(0))
+	}
+	zset.Add(0, member)
+	entry.Set(zset)
+	db.Set(key, entry)
 	
 	return Response(resp.Integer(1))
 }

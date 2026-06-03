@@ -18,13 +18,13 @@ func NewZset() *Zset {
 	}
 }
 
-func (z *Zset) Add(rank float64, value string) int {
+func (z *Zset) Add(rank float64, member string) int {
 	var v *Zvalue
 	var isNewValue int = 0
-	v, ok := z.Keys[value]
+	v, ok := z.Keys[member]
 	if !ok {
-		v = &Zvalue{Score: rank, Value: value}
-		z.Keys[value] = v
+		v = &Zvalue{Score: rank, Value: member}
+		z.Keys[member] = v
 		z.Set = append(z.Set, *v)
 		isNewValue = 1
 	}
