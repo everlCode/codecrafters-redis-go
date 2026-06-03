@@ -6,6 +6,7 @@ import (
 
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
+	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
@@ -50,7 +51,8 @@ func (c GeoaddCommand) Execute(args []string, server *server.Server, client *cli
 	if !ok {
 		return Response(resp.Integer(0))
 	}
-	zset.Add(0, member)
+	score := helpers.EncodeGeo(latitude, longtitude)
+	zset.Add(float64(score), member)
 	entry.Set(zset)
 	db.Set(key, entry)
 	
