@@ -287,7 +287,7 @@ func EmptyArray() Value {
 	}
 }
 
-func NilArray() Value {
+func NullArray() Value {
 	return Value{
 		Type:  ARRAY,
 		Array: nil,

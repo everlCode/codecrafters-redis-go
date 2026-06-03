@@ -27,7 +27,7 @@ func (c XreadCommand) Execute(args []string, server *server.Server, client *clie
 	timeout := parsedArgs["timeout"].(time.Duration)
 
 	var endDate time.Time
-	if (timeout > 0) {
+	if timeout > 0 {
 		endDate = time.Now().Add(timeout)
 	}
 
@@ -56,7 +56,7 @@ func (c XreadCommand) Execute(args []string, server *server.Server, client *clie
 				entry = v
 
 			case <-timeoutCh:
-				return Response(resp.NilArray())
+				return Response(resp.NullArray())
 			}
 		}
 		stream, _ = entry.AsStream()
@@ -105,7 +105,7 @@ func (c XreadCommand) parseArgs(args []string) map[string]any {
 
 	pairsLen := len(pairs)
 	pairsMiddle := pairsLen / 2
-	
+
 	var starts []string
 	var keys []string
 	for i, v := range pairs {
@@ -114,7 +114,7 @@ func (c XreadCommand) parseArgs(args []string) map[string]any {
 		} else {
 			keys = append(keys, v)
 		}
-		
+
 	}
 	response["keys"] = keys
 	response["starts"] = starts

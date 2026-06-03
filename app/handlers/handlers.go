@@ -39,6 +39,7 @@ const (
 	ZSCORE       = "ZSCORE"
 	ZREM       = "ZREM"
 	GEOADD       = "GEOADD"
+	GEOPOS       = "GEOPOS"
 )
 
 type Command interface {

@@ -24,7 +24,7 @@ func (c BlPopCommand) Execute(args []string, server *server.Server, client *clie
 	if timeout > 0 {
 		endDate = time.Now().Add(timeout)
 	}
-	
+
 	entry, ok := db.Get(key)
 	if ok {
 		var response resp.Value
@@ -38,7 +38,7 @@ func (c BlPopCommand) Execute(args []string, server *server.Server, client *clie
 				response = resp.ArrayString(key, firstValue)
 			}
 		} else {
-			response = resp.NilArray()
+			response = resp.NullArray()
 		}
 
 		return Response(response)
@@ -53,7 +53,7 @@ func (c BlPopCommand) Execute(args []string, server *server.Server, client *clie
 		case v := <-ch:
 			entry = v
 		case <-time.After(timeout):
-			return Response(resp.NilArray())
+			return Response(resp.NullArray())
 		}
 	}
 	data := entry.AsArray()

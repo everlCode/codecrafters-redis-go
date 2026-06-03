@@ -12,11 +12,11 @@ type GetCommand struct {
 }
 
 func (c GetCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
-	db := server.GetDB()
 	if len(args) < 1 {
 		return Response(resp.Error("ERR to few args"))
 	}
 
+	db := server.GetDB()
 	key := args[0]
 
 	value, ok := db.Get(key)

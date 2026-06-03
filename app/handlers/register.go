@@ -43,6 +43,7 @@ func NewRegister() *Register {
 	register.Add(ZSCORE, &ZscoreCommand{})
 	register.Add(ZREM, &ZremCommand{})
 	register.Add(GEOADD, &GeoaddCommand{})
+	register.Add(GEOPOS, &GeoposCommand{})
 
 	return register
 }

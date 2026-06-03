@@ -64,6 +64,16 @@ func (z *Zset) Remove(key string) int  {
 	return 1
 }
 
+func (z *Zset) Get(value string) *Zvalue {
+	v, ok := z.Keys[value]
+	if !ok {
+		return nil
+	}
+
+	return v
+}
+
+
 func (z *Zset) GetIndex(value string) (int, bool) {
 	v, ok := z.Keys[value]
 	if !ok {
@@ -72,7 +82,6 @@ func (z *Zset) GetIndex(value string) (int, bool) {
 
 	return binarySearch(z.Set, *v), true
 }
-
 
 
 func binarySearch(set []Zvalue, searchValue Zvalue) int {
