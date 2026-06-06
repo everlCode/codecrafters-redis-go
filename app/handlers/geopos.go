@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
+	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 	"github.com/codecrafters-io/redis-starter-go/app/server"
 )
@@ -34,10 +35,10 @@ func (c GeoposCommand) Execute(args []string, server *server.Server, client *cli
             continue
         }
 
-        //lon, lat := geo.DecodeScore(score)
+        coord := helpers.DecodeGeo(uint64(value.Score))
         response = append(response, []any{
-            0.0,
-            0.0,
+            coord.Longitude,
+            coord.Latitude,
         })
     }
 
