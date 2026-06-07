@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/helpers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
@@ -38,5 +40,8 @@ func (c GeodistCommand) Execute(args []string, server *server.Server, client *cl
 	coord1 := helpers.DecodeGeo(uint64(firstMember.Score))
 	coord2 := helpers.DecodeGeo(uint64(secondMember.Score))
 
-	return Response(resp.Integer(int(helpers.GeoDist(coord1.Latitude, coord1.Longitude, coord2.Latitude, coord2.Longitude))))
+	res := helpers.GeoDist(coord1.Latitude, coord1.Longitude, coord2.Latitude, coord2.Longitude)
+	
+
+	return Response(resp.Bulk(strconv.FormatFloat(res, 'f', 4, 64)))
 }

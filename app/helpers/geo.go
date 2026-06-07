@@ -95,7 +95,7 @@ func degPos(lat, lon float64) pos {
     return pos{lat * math.Pi / 180, lon * math.Pi / 180}
 }
 
-const rEarth = 6372.8
+const rEarth = 6372797.560856
 
 func hsDist(p1, p2 pos) float64 {
     return 2 * rEarth * math.Asin(math.Sqrt(haversine(p2.φ-p1.φ)+
@@ -103,5 +103,5 @@ func hsDist(p1, p2 pos) float64 {
 }
 
 func GeoDist(lat1, lon1, lat2, lon2 float64) float64 {
-    return hsDist(degPos(lat1, lon1), degPos(lat2, lon2))
+    return hsDist(degPos(lat1, lon1), degPos(lat2, lon2)) // уже в метрах, * 1000 убрать
 }
