@@ -20,7 +20,7 @@ func (c AclCommand) Execute(args []string, server *server.Server, client *client
 	case "getuser":
 		return Response(resp.Array(
 			[]any{
-				"flags", []any{"nopass"},
+				"flags", []any{"nopass"}, "passwords", []any{},
 			},
 		))
 	}
