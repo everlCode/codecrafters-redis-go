@@ -45,6 +45,7 @@ func NewRegister() *Register {
 	register.Add(GEOADD, &GeoaddCommand{})
 	register.Add(GEOPOS, &GeoposCommand{})
 	register.Add(GEODIST, &GeodistCommand{})
+	register.Add(GEOSEARCH, &GeosearchCommand{})
 
 	return register
 }
