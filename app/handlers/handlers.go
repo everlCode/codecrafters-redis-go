@@ -42,6 +42,7 @@ const (
 	GEOPOS       = "GEOPOS"
 	GEODIST       = "GEODIST"
 	GEOSEARCH       = "GEOSEARCH"
+	ACL       = "ACL"
 )
 
 type Command interface {
