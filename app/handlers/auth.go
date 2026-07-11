@@ -16,6 +16,9 @@ func (c AuthCommand) Execute(args []string, server *server.Server, client *clien
 	if user == nil || !user.CheckPassword(pass) {
 		return Response(resp.Error("WRONGPASS invalid username-password pair or user is disabled."))
 	}
+	client.User = user
+	client.Authenticated = true
+
 	
 	return Response(resp.SimpleString("OK"))
 }

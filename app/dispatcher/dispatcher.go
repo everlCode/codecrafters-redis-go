@@ -19,11 +19,15 @@ var pubsubHandlers map[string]int = map[string]int{
 	"QUIT": 0,
 }
 
+var authNotReq map[string]int = map[string]int{
+	"AUTH": 0,
+}
+
 func Dispatch(args []string, server *server.Server, client *clients.Client) handlers.CommandResponse {
 	register := handlers.NewRegister()
 	handlerName := strings.ToUpper(args[0])
 
-	if !client.Authenticated {
+	if !client.Authenticated && isRequiredAuth(handlerName) {
 		return handlers.Response(resp.Error("NOAUTH Authentication required."))
 	}
 	if client.IsSubscriber() && !isPubsubHandler(handlerName) {
@@ -79,4 +83,10 @@ func isPubsubHandler(handlerName string) bool {
 	_, ok := pubsubHandlers[handlerName]
 
 	return ok
+}
+
+func isRequiredAuth(handlerName string) bool {
+	_, ok := authNotReq[handlerName]
+
+	return !ok
 }
