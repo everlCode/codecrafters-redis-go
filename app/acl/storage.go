@@ -28,3 +28,10 @@ func (u *User) SetPassword(pass string) {
 	u.Password = hex.EncodeToString(hash[:])
 	u.NoPass = false
 }
+
+func (u *User) CheckPassword(pass string) bool {
+	hash := sha256.Sum256([]byte(pass))
+	password := hex.EncodeToString(hash[:])
+	
+	return u.Password == password
+}

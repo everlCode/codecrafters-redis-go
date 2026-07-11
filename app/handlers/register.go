@@ -47,6 +47,7 @@ func NewRegister() *Register {
 	register.Add(GEODIST, &GeodistCommand{})
 	register.Add(GEOSEARCH, &GeosearchCommand{})
 	register.Add(ACL, &AclCommand{})
+	register.Add(AUTH, &AuthCommand{})
 
 	return register
 }

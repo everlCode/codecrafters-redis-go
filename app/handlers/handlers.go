@@ -43,6 +43,7 @@ const (
 	GEODIST       = "GEODIST"
 	GEOSEARCH       = "GEOSEARCH"
 	ACL       = "ACL"
+	AUTH       = "AUTH"
 )
 
 type Command interface {
