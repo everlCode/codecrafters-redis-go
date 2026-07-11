@@ -3,6 +3,7 @@ package clients
 import (
 	"net"
 
+	"github.com/codecrafters-io/redis-starter-go/app/acl"
 	"github.com/codecrafters-io/redis-starter-go/app/pubsub"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -17,15 +18,27 @@ type Client struct {
 	RDBSent          bool
 	masterConnection bool
 	channels    map[string]*pubsub.Channel
+	User *acl.User
+	Authenticated bool
 }
 
-func New(conn net.Conn) *Client {
+func New(conn net.Conn, acl *acl.Acl) *Client {
 	parser := resp.New(conn)
-	return &Client{
+	defaultUser := acl.GetUser("default")
+
+	client := &Client{
 		connection: conn,
 		parser:     parser,
 		channels: make(map[string]*pubsub.Channel),
+		Authenticated: false,
 	}
+
+	if defaultUser.NoPass {
+		client.User = defaultUser
+		client.Authenticated = true
+	}
+
+	return client
 }
 
 func (c *Client) Subscribe(channel *pubsub.Channel) {

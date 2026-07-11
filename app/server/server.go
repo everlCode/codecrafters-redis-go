@@ -87,7 +87,7 @@ func (s *Server) InitReplica() *clients.Client {
 	}
 	s.MasterConnection = conn
 	
-	client := clients.New(conn)
+	client := clients.New(conn, s.Acl)
 	client.SetMasterConnection(true)
 
 	s.MasterConnection = conn

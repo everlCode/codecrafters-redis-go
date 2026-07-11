@@ -35,7 +35,7 @@ func main() {
 			fmt.Println("Error accepting connection: ", err.Error())
 			continue
 		}
-		client := clients.New(conn)
+		client := clients.New(conn, s.Acl)
 		go handle(client, s)
 	}
 }

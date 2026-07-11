@@ -23,6 +23,9 @@ func Dispatch(args []string, server *server.Server, client *clients.Client) hand
 	register := handlers.NewRegister()
 	handlerName := strings.ToUpper(args[0])
 
+	if !client.Authenticated {
+		return handlers.Response(resp.Error("NOAUTH Authentication required."))
+	}
 	if client.IsSubscriber() && !isPubsubHandler(handlerName) {
 		return handlers.Response(resp.Error("ERR Can't execute '" + handlerName + "': only (P|S)SUBSCRIBE / (P|S)UNSUBSCRIBE / PING / QUIT / RESET are allowed in this context"))
 	}
