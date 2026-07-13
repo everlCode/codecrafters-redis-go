@@ -66,7 +66,7 @@ func Dispatch(args []string, server *server.Server, client *clients.Client) hand
 		}
 
 		var result handlers.CommandResponse
-		if client.IsTransaction() {
+		if client.IsTransaction() && handlerName != handlers.WATCH {
 			commandQueue := clients.NewCommandQueue(handlerName, args)
 			client.PushCommandQueue(commandQueue)
 

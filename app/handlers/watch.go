@@ -11,8 +11,8 @@ type WatchCommand struct {
 
 func (c WatchCommand) Execute(args []string, server *server.Server, client *clients.Client) CommandResponse {
 	if client.IsTransaction() {
-		return Response(resp.Error("WATCH inside MULTI is not allowed"))
+		return Response(resp.Error("ERR WATCH inside MULTI is not allowed"))
 	}
-	
+
 	return Response(resp.SimpleString("OK"))
 }
