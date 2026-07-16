@@ -14,9 +14,12 @@ func (c WatchCommand) Execute(args []string, server *server.Server, client *clie
 		return Response(resp.Error("ERR WATCH inside MULTI is not allowed"))
 	}
 
-	key := args[0]
 	db := server.GetDB()
-	client.Watch(key, db.GetVersion(key))
+
+	for _, key := range args {
+		client.Watch(key, db.GetVersion(key))
+	}
+	
 
 	return Response(resp.SimpleString("OK"))
 }
