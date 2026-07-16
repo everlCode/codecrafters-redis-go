@@ -19,6 +19,7 @@ type DB struct {
 	mx      sync.Mutex
 	sets    map[string]Entry
 	waiters map[string][]*Waiter
+	WatchedKeys map[string]uint64
 }
 
 type Waiter struct {
@@ -36,6 +37,7 @@ func New(config *config.Config) *DB {
 	db :=  &DB{
 		sets:    make(map[string]Entry),
 		waiters: make(map[string][]*Waiter),
+		WatchedKeys: make(map[string]uint64),
 	}
 	db.ImportRDB(data)
 
@@ -45,6 +47,7 @@ func New(config *config.Config) *DB {
 func (db *DB) Set(key string, value Entry) {
 	db.mx.Lock()
 	defer db.mx.Unlock()
+	db.WatchedKeys[key]++
 
 	if len(db.waiters[key]) > 0 {
 		var waiter *Waiter
@@ -105,6 +108,10 @@ func (db *DB) PushWaiter(key string, time time.Time) chan Entry {
 	db.waiters[key] = append(db.waiters[key], &w)
 
 	return ch
+}
+
+func (db *DB) GetVersion(key string) uint64 {
+	return db.WatchedKeys[key]
 }
 
 func (db *DB) ImportRDB(data []rdb.Value) {

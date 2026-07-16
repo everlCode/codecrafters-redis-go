@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
+	"github.com/codecrafters-io/redis-starter-go/app/database"
 	"github.com/codecrafters-io/redis-starter-go/app/handlers"
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 	"github.com/codecrafters-io/redis-starter-go/app/server"
@@ -43,6 +44,10 @@ func Dispatch(args []string, server *server.Server, client *clients.Client) hand
 			return handlers.Response(resp.Error("ERR EXEC without MULTI"))
 		}
 		client.EndTransactions()
+		if !isWatchedKeysSimilar(server.GetDB(), client) {
+			return handlers.Response(resp.NullArray())
+		}
+
 		var execResp []any
 		for _, c := range client.GetCommandQueue() {
 			result := Dispatch(c.Args, server, client)
@@ -89,4 +94,15 @@ func isRequiredAuth(handlerName string) bool {
 	_, ok := authNotReq[handlerName]
 
 	return !ok
+}
+
+func isWatchedKeysSimilar(db *database.DB, c *clients.Client) bool {
+	clientWatchedKeys := c.Watchedkeys
+	for key,version := range clientWatchedKeys {
+		if db.GetVersion(key) != version {
+			return false
+		}
+	}
+
+	return true
 }

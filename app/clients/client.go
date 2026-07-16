@@ -20,6 +20,7 @@ type Client struct {
 	channels    map[string]*pubsub.Channel
 	User *acl.User
 	Authenticated bool
+	Watchedkeys map[string]uint64
 }
 
 func New(conn net.Conn, acl *acl.Acl) *Client {
@@ -30,6 +31,7 @@ func New(conn net.Conn, acl *acl.Acl) *Client {
 		connection: conn,
 		parser:     parser,
 		channels: make(map[string]*pubsub.Channel),
+		Watchedkeys: make(map[string]uint64),
 		Authenticated: false,
 	}
 
@@ -125,4 +127,12 @@ func (c *Client) SetMasterConnection(v bool) {
 
 func (c *Client) MasterConnection() bool {
 	return c.masterConnection
+}
+
+func (c *Client) Watch(key string, value uint64) {
+	c.Watchedkeys[key] = value
+}
+
+func (c *Client) GetVersion(key string) uint64 {
+	return c.Watchedkeys[key]
 }
