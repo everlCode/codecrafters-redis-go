@@ -65,6 +65,7 @@ func Dispatch(args []string, server *server.Server, client *clients.Client) hand
 			return handlers.Response(resp.Error("ERR DISCARD without MULTI"))
 		}
 		client.ClearCommandQueue()
+		client.Unwatch()
 		client.EndTransactions()
 
 		return handlers.Response(resp.SimpleString("OK"))
