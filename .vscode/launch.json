@@ -14,8 +14,8 @@
       "args": [
         // "--port=6380",
         // "--replicaof=localhost 6379",
-        "--dir=/home/nick/codecrafters-redis-go/app",
-        "--dbfilename=dump.rdb"
+        // "--dir=/home/nick/codecrafters-redis-go/app",
+        // "--dbfilename=dump.rdb"
       ]
     }
   ]
