@@ -43,16 +43,21 @@ func Dispatch(args []string, server *server.Server, client *clients.Client) hand
 		if !client.IsTransaction() {
 			return handlers.Response(resp.Error("ERR EXEC without MULTI"))
 		}
-		client.EndTransactions()
+			client.EndTransactions()
 		if !isWatchedKeysSimilar(server.GetDB(), client) {
+			client.Unwatch()
+			client.ClearCommandQueue()
 			return handlers.Response(resp.NullArray())
 		}
-
+		
 		var execResp []any
 		for _, c := range client.GetCommandQueue() {
 			result := Dispatch(c.Args, server, client)
 			execResp = append(execResp, result.GetResponse())
 		}
+	
+		client.Unwatch()
+		client.ClearCommandQueue()
 
 		return handlers.Response(resp.Array(execResp))
 	case "DISCARD":
