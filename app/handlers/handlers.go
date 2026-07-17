@@ -45,6 +45,7 @@ const (
 	ACL       = "ACL"
 	AUTH       = "AUTH"
 	WATCH       = "WATCH"
+	UNWATCH       = "UNWATCH"
 )
 
 type Command interface {

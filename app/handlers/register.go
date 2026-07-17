@@ -49,6 +49,7 @@ func NewRegister() *Register {
 	register.Add(ACL, &AclCommand{})
 	register.Add(AUTH, &AuthCommand{})
 	register.Add(WATCH, &WatchCommand{})
+	register.Add(UNWATCH, &UnwatchCommand{})
 
 	return register
 }

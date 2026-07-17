@@ -133,6 +133,10 @@ func (c *Client) Watch(key string, value uint64) {
 	c.Watchedkeys[key] = value
 }
 
+func (c *Client) Unwatch() {
+	c.Watchedkeys = nil
+}
+
 func (c *Client) GetVersion(key string) uint64 {
 	return c.Watchedkeys[key]
 }
