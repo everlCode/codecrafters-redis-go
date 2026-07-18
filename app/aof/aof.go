@@ -28,4 +28,11 @@ func createAppendOnlyDirectory(config *config.Config) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	filename := filepath.Join(dirName, config.Appendfilename)
+	filename = filename + ".1.incr.aof"
+
+	_, err = os.Create(filename)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
