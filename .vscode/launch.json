@@ -16,6 +16,7 @@
         // "--replicaof=localhost 6379",
         // "--dir=/home/nick/codecrafters-redis-go/app",
         // "--dbfilename=dump.rdb"
+        "--dir=/tmp/aof-1-4457", "--appendonly=yes", "--appenddirname=mango", "--appendfilename=pear.aof"
       ]
     }
   ]

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/codecrafters-io/redis-starter-go/app/acl"
+	"github.com/codecrafters-io/redis-starter-go/app/aof"
 	"github.com/codecrafters-io/redis-starter-go/app/clients"
 	"github.com/codecrafters-io/redis-starter-go/app/config"
 	"github.com/codecrafters-io/redis-starter-go/app/database"
@@ -24,6 +25,7 @@ type Server struct {
 	db *database.DB
 	Pubsub *pubsub.Pubsub
 	Acl *acl.Acl
+	Aof *aof.Aof
 	config *config.Config
 	Port string
 	Role string
@@ -39,6 +41,7 @@ func New() *Server {
 	db := database.New(config)
 	pubsub := pubsub.New()
 	acl := acl.New()
+	aof := aof.New(config)
 	
 	replicaData := strings.Split(config.ReplicaOf, " ")
 	var masterHost string
@@ -57,6 +60,7 @@ func New() *Server {
 		db: db,
 		Pubsub: pubsub,
 		Acl: acl,
+		Aof: aof,
 		config: config,
 		Port: config.Port,
 		Role: role,
