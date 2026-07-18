@@ -35,4 +35,12 @@ func createAppendOnlyDirectory(config *config.Config) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+
+	filename = config.Appendfilename + ".manifest"
+	filename = filepath.Join(dirName, filename)
+	manifestFile, err := os.Create(filename)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	manifestFile.WriteString(fmt.Sprintf("file %s.1.incr.aof seq 1 type i", config.Appendfilename))
 }
