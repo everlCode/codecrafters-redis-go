@@ -6,10 +6,11 @@ import (
 	"path/filepath"
 
 	"github.com/codecrafters-io/redis-starter-go/app/config"
+	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
 type Aof struct {
-
+	Config *config.Config
 }
 
 func New(config *config.Config) *Aof {
@@ -18,7 +19,14 @@ func New(config *config.Config) *Aof {
 	}
 
 
-	return &Aof{}
+	return &Aof{
+		Config: config,
+	}
+}
+
+func incrFilePath(config *config.Config) string {
+	dirName := filepath.Join(config.Dir, config.Appenddirname)
+	return filepath.Join(dirName, config.Appendfilename+".1.incr.aof")
 }
 
 func createAppendOnlyDirectory(config *config.Config) {
@@ -28,19 +36,26 @@ func createAppendOnlyDirectory(config *config.Config) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	filename := filepath.Join(dirName, config.Appendfilename)
-	filename = filename + ".1.incr.aof"
 
-	_, err = os.Create(filename)
+	_, err = os.Create(incrFilePath(config))
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	filename = config.Appendfilename + ".manifest"
-	filename = filepath.Join(dirName, filename)
+	filename := filepath.Join(dirName, config.Appendfilename+".manifest")
 	manifestFile, err := os.Create(filename)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	manifestFile.WriteString(fmt.Sprintf("file %s.1.incr.aof seq 1 type i", config.Appendfilename))
+}
+
+func (aof *Aof) Write(command resp.Value) {
+	file, err := os.OpenFile(incrFilePath(aof.Config), os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Print(err.Error())
+		return
+	}
+	defer file.Close()
+	file.Write(command.Marshal())
 }

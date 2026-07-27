@@ -84,6 +84,10 @@ func Dispatch(args []string, server *server.Server, client *clients.Client) hand
 			result = handlers.Response(resp.SimpleString("QUEUED"))
 		} else {
 			result = handler.Execute(args[1:], server, client)
+			if result.IsPropagation && !client.MasterConnection() {
+				server.Aof.Write(resp.ArrayString(args...))
+				server.SendPropagation(result.PropCommand.Name, result.PropCommand.Args, server)
+			}
 		}
 
 		return result
