@@ -18,6 +18,7 @@ var _ = os.Exit
 
 func main() {
 	s := server.New()
+	replayAof(s)
 	listener := s.Start()
 
 	var masterClient *clients.Client
@@ -37,6 +38,28 @@ func main() {
 		}
 		client := clients.New(conn, s.Acl)
 		go handle(client, s)
+	}
+}
+
+// replayAof restores database state accumulated since the last restart by
+// replaying commands stored in the append-only file through the same
+// dispatcher normal clients use, so every command behaves identically.
+func replayAof(s *server.Server) {
+	commands := s.Aof.Load()
+
+	replayClient := clients.New(nil, s.Acl)
+	// Reuses the "master connection" flag purely to suppress side effects
+	// that don't make sense during replay: re-appending to the AOF file
+	// (would duplicate it on every restart) and propagating to replicas
+	// (there are none yet, since we haven't started accepting connections).
+	replayClient.SetMasterConnection(true)
+
+	for _, command := range commands {
+		args := resp.ParseSlice(command.Array)
+		if len(args) == 0 {
+			continue
+		}
+		dispatcher.Dispatch(args, s, replayClient)
 	}
 }
 

@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"net"
+	"io"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -33,9 +33,9 @@ type Parser struct {
 	offset int
 }
 
-func New(conn net.Conn) *Parser {
+func New(reader io.Reader) *Parser {
 	return &Parser{
-		reader: bufio.NewReader(conn),
+		reader: bufio.NewReader(reader),
 		offset: 0,
 	}
 }
