@@ -6,7 +6,7 @@ func SetBit(storage []byte, offset int, value bool) ([]byte, int, error) {
 	byteNumber := ((offset + byte_lenght - 1) / byte_lenght)
 	stringLenght := len(storage)
 
-	if stringLenght <= byteNumber {
+	if stringLenght < byteNumber || stringLenght == 0 {
 		var size int
 		if byteNumber == 0 {
 			size = 1
