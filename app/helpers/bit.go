@@ -22,12 +22,12 @@ func SetBit(storage []byte, offset int, value bool) ([]byte, int, error) {
 	}
 	byteToChange := storage[byteNumber - 1]
 	var originalValue byte
-	originalValue = byteToChange & (1 << bitNumber)
+	originalValue = byteToChange & (128 >> bitNumber)
 
 	if value {
-		byteToChange |= 1 << bitNumber
+		byteToChange |= 128 >> bitNumber
 	} else {
-		byteToChange &^= 1 << bitNumber
+		byteToChange &^= 128 >> bitNumber
 	}
 	storage[byteNumber - 1] = byteToChange
 
@@ -53,7 +53,7 @@ func GetBit(storage []byte, offset int) (int) {
 
 	byteToChange := storage[byteNumber - 1]
 	var originalValue byte
-	originalValue = byteToChange & (1 << bitNumber)
+	originalValue = byteToChange & (128 >> bitNumber)
 
 	var originalValueInt int
 	if int(originalValue) > 0 {
