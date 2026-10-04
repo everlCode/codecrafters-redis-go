@@ -6,11 +6,20 @@ func SetBit(storage []byte, offset int, value bool) ([]byte, int, error) {
 	byteNumber := ((offset + byte_lenght - 1) / byte_lenght)
 	stringLenght := len(storage)
 
-	if stringLenght < byteNumber {
-		storage = append(storage, make([]byte, byteNumber - stringLenght)...)
+	if stringLenght <= byteNumber {
+		var size int
+		if byteNumber == 0 {
+			size = 1
+		} else {
+			size = byteNumber
+		}
+		storage = append(storage, make([]byte, size)...)
 	}
 	bitNumber := offset % 8
 
+	if byteNumber == 0 {
+		byteNumber++
+	}
 	byteToChange := storage[byteNumber - 1]
 	var originalValue byte
 	originalValue = byteToChange & (1 << bitNumber)
@@ -32,6 +41,9 @@ func SetBit(storage []byte, offset int, value bool) ([]byte, int, error) {
 
 func GetBit(storage []byte, offset int) (int) {
 	byteNumber := ((offset + byte_lenght - 1) / byte_lenght)
+	if byteNumber == 0 {
+		byteNumber++
+	}
 	stringLenght := len(storage)
 
 	if stringLenght < byteNumber {
