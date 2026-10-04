@@ -47,6 +47,7 @@ const (
 	WATCH       = "WATCH"
 	UNWATCH     = "UNWATCH"
 	SETBIT     = "SETBIT"
+	GETBIT     = "GETBIT"
 )
 
 type Command interface {

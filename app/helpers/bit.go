@@ -1,7 +1,8 @@
 package helpers
 
+const byte_lenght = 8
+
 func SetBit(storage []byte, offset int, value bool) ([]byte, int, error) {
-	const byte_lenght = 8
 	byteNumber := ((offset + byte_lenght - 1) / byte_lenght)
 	stringLenght := len(storage)
 
@@ -27,4 +28,25 @@ func SetBit(storage []byte, offset int, value bool) ([]byte, int, error) {
 	}
 		
 	return storage, originalValueInt, nil
+}
+
+func GetBit(storage []byte, offset int) (int) {
+	byteNumber := ((offset + byte_lenght - 1) / byte_lenght)
+	stringLenght := len(storage)
+
+	if stringLenght < byteNumber {
+		return 0
+	}
+	bitNumber := offset % 8
+
+	byteToChange := storage[byteNumber - 1]
+	var originalValue byte
+	originalValue = byteToChange & (1 << bitNumber)
+
+	var originalValueInt int
+	if int(originalValue) > 0 {
+		originalValueInt = 1
+	}
+		
+	return originalValueInt
 }

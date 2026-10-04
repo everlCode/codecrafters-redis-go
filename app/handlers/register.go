@@ -51,6 +51,7 @@ func NewRegister() *Register {
 	register.Add(WATCH, &WatchCommand{})
 	register.Add(UNWATCH, &UnwatchCommand{})
 	register.Add(SETBIT, &SetBitCommand{})
+	register.Add(GETBIT, &GetBitCommand{})
 
 	return register
 }
