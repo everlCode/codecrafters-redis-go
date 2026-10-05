@@ -191,7 +191,7 @@ func (s *Server) mustReadOk(parser *resp.Parser) {
 	}
 }
 
-func (s *Server) SendRequest(conn net.Conn, arguments ...string) {
+func (s *Server) SendRequest(conn net.Conn, arguments ...string) error {
 	values := make([]any, len(arguments))
 
 	for i, arg := range arguments {
@@ -200,8 +200,10 @@ func (s *Server) SendRequest(conn net.Conn, arguments ...string) {
 
 	_, err := conn.Write(resp.Array(values).Marshal())
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
+
+	return nil
 }
 
 func (s *Server) SendRdb(conn net.Conn) {

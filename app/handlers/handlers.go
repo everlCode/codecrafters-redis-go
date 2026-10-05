@@ -46,9 +46,10 @@ const (
 	AUTH        = "AUTH"
 	WATCH       = "WATCH"
 	UNWATCH     = "UNWATCH"
-	SETBIT     = "SETBIT"
-	GETBIT     = "GETBIT"
-	STRLEN     = "STRLEN"
+	SETBIT      = "SETBIT"
+	GETBIT      = "GETBIT"
+	STRLEN      = "STRLEN"
+	BITCOUNT    = "BITCOUNT"
 )
 
 type Command interface {
