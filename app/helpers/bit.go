@@ -67,7 +67,7 @@ func GetBit(storage []byte, offset int) (int) {
 func getByteNumberByOffset(offset int) int {
 	var byteNumber int
 	if offset < max_offset_for_byte {
-		byteNumber = offset
+		byteNumber = 1
 	} else {
 		byteNumber = offset / max_offset_for_byte
 	}
