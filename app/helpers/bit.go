@@ -93,12 +93,26 @@ func byteNumberByOffset(offset int) int {
 
 func BitAndOp(a []byte, b []byte) []byte {
 	var res []byte
+	var short, long []byte
+	var aLen int = len(a)
+	var bLen int = len(b)
 
-	for i, curByte := range a {
-		if i + 1 > len(b) {
-			break;
+	if aLen > bLen || aLen == bLen {
+		short = b
+		long = a
+	} else {
+		short = a
+		long = b
+	}
+
+	for i, curByte := range long {
+		var shortByte byte
+		if i + 1 > len(short) {
+			shortByte = 0
+		} else {
+			shortByte = short[i]
 		}
-		maskResult := curByte & b[i]
+		maskResult := curByte & shortByte
 		res = append(res, maskResult)
 	}
 
