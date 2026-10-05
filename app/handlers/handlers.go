@@ -50,6 +50,7 @@ const (
 	GETBIT      = "GETBIT"
 	STRLEN      = "STRLEN"
 	BITCOUNT    = "BITCOUNT"
+	BITOP       = "BITOP"
 )
 
 type Command interface {

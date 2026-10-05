@@ -54,6 +54,7 @@ func NewRegister() *Register {
 	register.Add(GETBIT, &GetBitCommand{})
 	register.Add(STRLEN, &StrLenCommand{})
 	register.Add(BITCOUNT, &BitCountCommand{})
+	register.Add(BITOP, &BitOpCommand{})
 
 	return register
 }

@@ -1,7 +1,5 @@
 package helpers
 
-const max_offset = 7
-
 func SetBit(storage []byte, offset int, value bool) ([]byte, int, error) {
 	byteIndex := byteNumberByOffset(offset)
 	
@@ -58,7 +56,6 @@ func GetBit(storage []byte, offset int) (int) {
 	return originalValueInt
 }
 
-
 func CountTrueBit(storage []byte) int {
 	var counter int
 
@@ -92,4 +89,18 @@ func byteNumberByOffset(offset int) int {
 	}
 
 	return byteNumber
+}
+
+func BitAndOp(a []byte, b []byte) []byte {
+	var res []byte
+
+	for i, curByte := range a {
+		if i + 1 > len(b) {
+			break;
+		}
+		maskResult := curByte & b[i]
+		res = append(res, maskResult)
+	}
+
+	return res
 }
