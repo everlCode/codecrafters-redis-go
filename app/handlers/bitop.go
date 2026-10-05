@@ -12,6 +12,7 @@ import (
 
 const (
 	AND = "AND"
+	OR = "OR"
 )
 
 type BitOpCommand struct {
@@ -52,6 +53,8 @@ func (c BitOpCommand) Execute(
 	switch strings.ToUpper(operation) {
 	case AND:
 		result = helpers.BitAndOp([]byte(firstEntry.AsString()), []byte(secondEntry.AsString()))
+	case OR:
+		result = helpers.BitOrOp([]byte(firstEntry.AsString()), []byte(secondEntry.AsString()))
 	}
 
 	curEntry.Set(string(result))
