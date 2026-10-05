@@ -48,6 +48,7 @@ const (
 	UNWATCH     = "UNWATCH"
 	SETBIT     = "SETBIT"
 	GETBIT     = "GETBIT"
+	STRLEN     = "STRLEN"
 )
 
 type Command interface {

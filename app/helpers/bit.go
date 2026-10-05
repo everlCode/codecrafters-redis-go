@@ -11,7 +11,7 @@ func SetBit(storage []byte, offset int, value bool) ([]byte, int, error) {
 		if byteNumber == 0 {
 			size = 1
 		} else {
-			size = byteNumber
+			size = byteNumber - stringLenght
 		}
 		storage = append(storage, make([]byte, size)...)
 	}
