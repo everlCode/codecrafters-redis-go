@@ -1,9 +1,10 @@
 package helpers
 
-const byte_lenght = 8
+const max_offset_for_byte = 7
 
 func SetBit(storage []byte, offset int, value bool) ([]byte, int, error) {
-	byteNumber := ((offset + byte_lenght - 1) / byte_lenght)
+	byteNumber := getByteNumberByOffset(offset)
+	
 	stringLenght := len(storage)
 
 	if stringLenght < byteNumber || stringLenght == 0 {
@@ -40,7 +41,7 @@ func SetBit(storage []byte, offset int, value bool) ([]byte, int, error) {
 }
 
 func GetBit(storage []byte, offset int) (int) {
-	byteNumber := ((offset + byte_lenght - 1) / byte_lenght)
+	byteNumber := getByteNumberByOffset(offset)
 	if byteNumber == 0 {
 		byteNumber++
 	}
@@ -61,4 +62,15 @@ func GetBit(storage []byte, offset int) (int) {
 	}
 		
 	return originalValueInt
+}
+
+func getByteNumberByOffset(offset int) int {
+	var byteNumber int
+	if offset < max_offset_for_byte {
+		byteNumber = offset
+	} else {
+		byteNumber = offset / max_offset_for_byte
+	}
+
+	return byteNumber
 }
